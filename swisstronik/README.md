@@ -2,12 +2,11 @@
 
 This project demonstrates a basic Hardhat use case with swisstronik chain. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
 
-Try running some of the following tasks:
+Try running on gitpod
 
+[Open Gitpod](https://gitpod.io/#https://github.com/comunity-node/Labs "Labs")
 ```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
+cd swisstronik
+npm install
+npx hardhat run scripts/deploy.js
 ```
