@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./Ownable.sol";
-import "./LendingPool.sol";
+import "./loan1.sol";
 
 contract LendingRouter is Ownable {
     struct TokenPair {
@@ -33,11 +33,11 @@ contract LendingRouter is Ownable {
         allowedCollateralTokens[token] = false;
     }
 
-    function createLendingPool(address lendingToken, address collateralToken) external onlyOwner {
+    function createLendingPool(address lendingToken, address collateralToken, uint256 initialInterestRate) external onlyOwner {
         require(allowedLendingTokens[lendingToken], "Lending token not allowed");
         require(allowedCollateralTokens[collateralToken], "Collateral token not allowed");
 
-        LendingPool pool = new LendingPool(lendingToken, collateralToken);
+        LendingPool pool = new LendingPool(lendingToken, collateralToken, msg.sender, initialInterestRate);
         lendingPools[lendingToken][collateralToken] = address(pool);
 
         emit LendingPoolCreated(lendingToken, collateralToken, address(pool));
