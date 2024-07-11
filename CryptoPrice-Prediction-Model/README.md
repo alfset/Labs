@@ -73,29 +73,29 @@ This Flask application predicts cryptocurrency prices using historical data and 
 
 ### Linear Regression Formula for Price Prediction
 The application uses Linear Regression to predict future cryptocurrency prices. The formula for predicting price \( \hat{y} \) based on features \( X \) (timestamps) is:
-\[ \hat{y} = \beta_0 + \beta_1 X \]
+y_hat = β_0 + β_1 * X
 Where:
-- \( \beta_0 \) (beta zero) is the intercept.
-- \( \beta_1 \) (beta one) is the coefficient for the timestamp feature.
+- β_0 (beta zero) is the intercept.
+- β_1 (beta one) is the coefficient for the timestamp feature.
 
 ### Momentum Formula
-Momentum is calculated as the difference in prices over a specified period (e.g., 1 day):
-\[ \text{Momentum} = \text{Price}_{t} - \text{Price}_{t-1} \]
-
+Momentum is calculated as the difference in prices over a specified period (e.g., 1 hour):
+Momentum = Price_t - Price_{t-1}
 ### Breakout Formula
 Breakout indicates significant price movements beyond a specified threshold (e.g., 5%):
-\[ \text{Breakout} = \begin{cases} 
-1 & \text{if } \left|\frac{\text{Price}_{t} - \text{Price}_{t-1}}{\text{Price}_{t-1}}\right| > \text{Threshold} \\
-0 & \text{otherwise}
-\end{cases} \]
+break out = if absolute value of (Price_t - Price_{t-1}) divided by Price_{t-1} is greater than 0.05:
+Breakout = 1
+else:
+Breakout = 0
+This format defines Breakout as a condition that evaluates whether the absolute percentage change between two consecutive prices exceeds a specified threshold, indicating a significant price movement.
 
 ### R-squared (R²) Score Formula
 R-squared (R²) score measures the proportion of the variance in the dependent variable (price) that is predictable from the independent variable (timestamps):
-\[ R^2 = 1 - \frac{\sum (y - \hat{y})^2}{\sum (y - \bar{y})^2} \]
+R^2 = 1 - (sum of squared residuals) / (total sum of squares)
 Where:
-- \( y \) is the observed values.
-- \( \hat{y} \) is the predicted values.
-- \( \bar{y} \) is the mean of the observed values \( y \).
+- y is the observed values.
+- y_hat is the predicted values.
+- y_bar is the mean of the observed values y.
 
 ## Example Usage
 1. **Start Application:**
