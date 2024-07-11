@@ -66,8 +66,7 @@ This Flask application predicts cryptocurrency prices using historical data and 
   - Stores recent prices in `real_time_prices` dictionary.
 
 ### Flask Routes
-- **`/` (Homepage):** Displays a welcome message or overview of the application.
-- **`/api/predict/<coin_id>`:** Retrieves predicted and historical prices, metrics, and real-time updates for a specified cryptocurrency.
+  - **`/api/predict/<coin_id>`:** Retrieves predicted and historical prices, metrics, and real-time updates for a specified cryptocurrency.
   - Renders HTML template (`index.html`) with data for visualization.
 
 ## Formulas
@@ -100,10 +99,10 @@ Where:
 
 ## Example Usage
 1. **Start Application:**
-   - Run `python app.py` to start the Flask application.
+   - Run `python server.py` to start the Flask application.
 
 2. **Predict Prices:**
-   - Visit `http://localhost:8080/api/predict/bitcoin` to see predictions for Bitcoin.
+   - Visit `http://localhost:5000/api/predict/bitcoin` to see predictions for Bitcoin.
    - Replace `bitcoin` with other cryptocurrency IDs (e.g., `ethereum`, `solana`) for different predictions.
 
 ## Resources for Further Reading
