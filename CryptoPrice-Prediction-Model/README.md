@@ -116,6 +116,8 @@ Where:
   - [Breakout Trading Strategies](https://www.investopedia.com/trading/breakout-trading-strategies/)
 - **Coin Gecko:**
   - [Coin Gecko](https://www.coingecko.com/)
+- ##Try ours web page
+  - [Bitcoin](https://priceprediction.comunitynode.my.id/api/predict/bitcoin)
 
 
 
