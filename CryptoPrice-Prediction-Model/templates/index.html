@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cryptocurrency Prediction</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .real-time-prices {
+            margin-top: 20px;
+        }
+        .real-time-prices ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .real-time-prices li {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+        .countdown {
+            font-size: 20px;
+            color: #333;
+            margin-top: 10px;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Historical and Predicted Prices for {{ coin_id }}</h1>
+        <img src="data:image/png;base64,{{ plot_base64 }}" alt="Price Chart">
+
+        <h2>Evaluation Metrics</h2>
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Mean Absolute Error (MAE)</td>
+                <td>{{ mae }}</td>
+            </tr>
+            <tr>
+                <td>Mean Squared Error (MSE)</td>
+                <td>{{ mse }}</td>
+            </tr>
+            <tr>
+                <td>R² Score</td>
+                <td>{{ r2 }}</td>
+            </tr>
+            <tr>
+                <td>Prediction Accuracy (%)</td>
+                <td>
+                    {% if r2 is not none %}
+                        {{ "%.2f" % (r2 * 100) }}%
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <div class="real-time-prices">
+            <h2>Predicted and Real-Time Prices</h2>
+            <table>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Predicted Price</th>
+                    <th>Real-Time Price</th>
+                </tr>
+                {% for prediction in predictions %}
+                {% if loop.index <= 5 %}
+                <tr>
+                    <td>{{ prediction.timestamp }}</td>
+                    <td>${{ prediction.predicted_price }}</td>
+                    <td>
+                        {% for price in real_time_prices %}
+                            {% if price.timestamp == prediction.timestamp %}
+                                ${{ price.price }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+            <div class="countdown" id="countdown">
+                Real-Time Price Update in <span id="countdown-timer"></span>
+            </div>
+        </div>
+        
+        {% if volatility_factor is not none %}
+            <h2>Volatility Factor</h2>
+            <p>{{ volatility_factor }}</p>
+        {% endif %}
+
+        <h2>Momentum and Breakout</h2>
+        <table>
+            <tr>
+                <th>Timestamp</th>
+                <th>Price</th>
+                <th>Momentum (1-day)</th>
+                <th>Breakout</th>
+            </tr>
+            {% for price in historical_prices %}
+                <tr>
+                    <td>{{ price.timestamp }}</td>
+                    <td>${{ price.price }}</td>
+                    <td>{{ price.momentum_1d }}</td>
+                    <td>{{ "Yes" if price.breakout == 1 else "No" }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+
+    <footer>
+        Provided by ComunityNode data from coin gecko
+    </footer>
+    <script>
+        function startCountdown(duration, display) {
+            let timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    timer = duration;
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            let countdownTimer = 60 * {{ price_update_interval_minutes }};
+            display = document.querySelector('#countdown-timer');
+            startCountdown(countdownTimer, display);
+        };
+    </script>
+</body>
+</html>
