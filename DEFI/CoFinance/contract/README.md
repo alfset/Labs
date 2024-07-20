@@ -272,3 +272,13 @@ Here's the corrected breakdown:
 
 - **Numerator**: The product of `interestFeeBalance` and `OWNER_SHARE_PERCENT`.
 - **Denominator**: 100, which is used to convert the percentage into a decimal fraction.
+
+
+### Deployed Contract
+
+Holesky : 0x06dbF91Ad46baAf061B0021Dd40a87Ad687bfAc1
+cross fi : 0x1eca16f659e63c0d0a306bc3ac3e63978ac94df3
+BNB : 0xd40A60bA95325Ae378ec83C96d4938708884D57d
+base : 0xd40A60bA95325Ae378ec83C96d4938708884D57d
+op: 0xd40a60ba95325ae378ec83c96d4938708884d57d
+
