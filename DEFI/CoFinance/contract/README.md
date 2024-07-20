@@ -236,7 +236,7 @@ Here's a breakdown of the equations with explanations for each term:
 
 - **Calculation**:
   $$
-  \text{amount} = \frac{\text{swapFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
+  \text{amount} = \frac{\text{{swapFeeBalance}} \times \text{OWNER_SHARE_PERCENT}}{100}
   $$
 
   **Breakdown**:
@@ -248,7 +248,7 @@ Here's a breakdown of the equations with explanations for each term:
 
 - **Calculation**:
   $$
-  \text{amount} = \frac{\text{interestFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
+  \text{amount} = \frac{\text{{interestFeeBalance}} \times \text{OWNER_SHARE_PERCENT}}{100}
   $$
 
   **Breakdown**:
