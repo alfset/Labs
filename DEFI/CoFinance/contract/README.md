@@ -217,9 +217,11 @@ where:
 
 ### Staking Rewards Calculation
 
+### Staking Rewards Calculation
+
 - **Reward Calculation**:
   $$
-  \text{reward} = \frac{\text{stakedAmount} \times \text{rewardRate} \times \text{stakeDuration}}{365 \text{ days}}
+  \text{reward} = \frac{\text{stakedAmount} \times \text{rewardRate} \times \text{stakeDuration}}{365}
   $$
 
 ### Fee Withdrawals
