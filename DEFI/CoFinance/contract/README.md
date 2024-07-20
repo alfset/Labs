@@ -215,7 +215,7 @@ where:
   \text{interestFeeBalance} = \text{interestFeeBalance} + \frac{\text{loanAmount} \times \text{INTEREST\_RATE} \times (\text{block.timestamp} - \text{loanStartTime[msg.sender]})}{100 \times 365 \text{ days}}
   $$
 
-### Staking Rewards Calculation
+Here's a breakdown of the equations with explanations for each term:
 
 ### Staking Rewards Calculation
 
@@ -223,6 +223,12 @@ where:
   $$
   \text{reward} = \frac{\text{stakedAmount} \times \text{rewardRate} \times \text{stakeDuration}}{365}
   $$
+
+  **Breakdown**:
+  - **stakedAmount**: The amount of tokens that have been staked.
+  - **rewardRate**: The rate at which rewards are earned per unit of staked amount (e.g., annual percentage rate).
+  - **stakeDuration**: The duration for which the tokens have been staked.
+  - **365**: Number of days in a year, used to calculate the annualized reward based on the stake duration.
 
 ### Fee Withdrawals
 
@@ -233,9 +239,19 @@ where:
   \text{amount} = \frac{\text{swapFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
   $$
 
+  **Breakdown**:
+  - **swapFeeBalance**: The total accumulated fees from token swaps in the pool.
+  - **OWNER_SHARE_PERCENT**: The percentage of the swap fees that are allocated to the owner.
+  - **100**: Used to convert the percentage into a fraction.
+
 #### Interest Fee Withdrawal
 
 - **Calculation**:
   $$
   \text{amount} = \frac{\text{interestFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
   $$
+
+  **Breakdown**:
+  - **interestFeeBalance**: The total accumulated interest fees from loans.
+  - **OWNER_SHARE_PERCENT**: The percentage of the interest fees that are allocated to the owner.
+  - **100**: Used to convert the percentage into a fraction.
