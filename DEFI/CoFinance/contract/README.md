@@ -244,14 +244,31 @@ Here's a breakdown of the equations with explanations for each term:
   - **OWNER_SHARE_PERCENT**: The percentage of the swap fees that are allocated to the owner.
   - **100**: Used to convert the percentage into a fraction.
 
+It looks like the issue with the LaTeX formatting in your `README.md` file might be related to the use of double braces around `interestFeeBalance`. Here's how you should format it:
+
+```latex
+\text{amount} = \frac{\text{interestFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
+```
+
+Here's the corrected breakdown:
+
+### Fee Withdrawals
+
+#### Swap Fee Withdrawal
+
+- **Calculation**:
+  $$
+  \text{amount} = \frac{\text{swapFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
+  $$
+
 #### Interest Fee Withdrawal
 
 - **Calculation**:
   $$
-  \text{amount} = \frac{\text{{interestFeeBalance}} \times \text{OWNER_SHARE_PERCENT}}{100}
+  \text{amount} = \frac{\text{interestFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
   $$
 
-  **Breakdown**:
-  - **interestFeeBalance**: The total accumulated interest fees from loans.
-  - **OWNER_SHARE_PERCENT**: The percentage of the interest fees that are allocated to the owner.
-  - **100**: Used to convert the percentage into a fraction.
+### Explanation
+
+- **Numerator**: The product of `interestFeeBalance` and `OWNER_SHARE_PERCENT`.
+- **Denominator**: 100, which is used to convert the percentage into a decimal fraction.
