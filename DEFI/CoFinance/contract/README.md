@@ -1,3 +1,6 @@
+Here is your updated `README.md` file for the `CoFinanceFactory` contract with the detailed formulas and breakdown implemented:
+
+```markdown
 # CoFinanceFactory Contract
 
 ## Overview
@@ -236,3 +239,4 @@ where:
   $$
   \text{amount} = \frac{\text{interestFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
   $$
+```
