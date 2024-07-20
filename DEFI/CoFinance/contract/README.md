@@ -183,8 +183,8 @@ $$
 $$
 
 where:
-- \(\text{TokenAAmount}\) is the amount of Token A provided.
-- \(\text{TokenBAmount}\) is the amount of Token B provided.
+- TokenAAmount is the amount of Token A provided.
+- TokenBAmount is the amount of Token B provided.
 
 #### Subsequent Liquidity Provision
 
@@ -195,9 +195,9 @@ $$
 $$
 
 where:
-- \(\text{LiquidityTotalSupply}\) is the total supply of liquidity tokens in circulation.
-- \(\text{ReserveA}\) is the current reserve of Token A in the pool.
-- \(\text{ReserveB}\) is the current reserve of Token B in the pool.
+- LiquidityTotalSupply is the total supply of liquidity tokens in circulation.
+- ReserveA is the current reserve of Token A in the pool.
+- ReserveB is the current reserve of Token B in the pool.
 
 ### Loan Calculations
 
@@ -237,4 +237,3 @@ where:
   $$
   \text{amount} = \frac{\text{interestFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
   $$
-```
