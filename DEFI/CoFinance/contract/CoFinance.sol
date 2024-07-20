@@ -77,8 +77,8 @@ contract CoFinance {
     uint256 public constant SECONDS_IN_21_DAYS = 21 days;
 
     uint256 public APR_7_DAYS = 20; // 20% APR for 7 days
-    uint256 public APR_14_DAYS = 40; // 40% APR for 14 days
-    uint256 public APR_21_DAYS = 60; // 60% APR for 21 days
+    uint256 public APR_14_DAYS = 30; // 40% APR for 14 days
+    uint256 public APR_21_DAYS = 50; // 60% APR for 21 days
     uint256 public totalStaked; // Total amount staked across all stakers
     uint256 public swapFeeBalance;
     uint256 public interestFeeBalance;
@@ -108,7 +108,9 @@ contract CoFinance {
     event SwapFeeWithdrawn(address indexed owner, uint256 amount);
     event InterestFeeWithdrawn(address indexed owner, uint256 amount);
     event IncentiveDeposited(address indexed depositor, uint256 amount);
+    event LiquidityTokensMinted(address recipient, uint256 amount);
     event LiquidityTokensSent(address recipient, uint256 amount);
+
 
     constructor(
         address _tokenA,
@@ -133,54 +135,90 @@ contract CoFinance {
     function depositIncentive(uint256 amount) public {
         require(isPoolIncentivized, "Pool is not incentivized");
         rewardToken.safeTransferFrom(msg.sender, address(this), amount);
-        totalStaked = stakingContract.totalStaked();
-        if (totalStaked > 0) {
-            for (uint256 i = 0; i < stakingContract.getTotalStaked(); i++) {
-                address staker = stakingContract.getStakerByIndex(i);
-                uint256 stakerReward = amount.mul(stakingContract.stakedBalance(staker)).div(totalStaked);
-                stakerRewards[staker] = stakerRewards[staker].add(stakerReward);
-            }
-        }
         emit IncentiveDeposited(msg.sender, amount);
     }
 
     function swapTokens(address tokenAddress, uint256 tokenAmount) external {
         require(tokenAmount > 0, "Token amount must be greater than 0");
+        if (address(priceFeed) == address(0)) {
+            _ammSwap(tokenAddress, tokenAmount);
+        } else {
+            _dynamicSwap(tokenAddress, tokenAmount);
+            }
+    }
+
+    function _ammSwap(address tokenAddress, uint256 tokenAmount) internal {
         uint256 tokenAFee;
         uint256 tokenBFee;
         uint256 tokenAAmountAfterFee;
         uint256 tokenBAmountAfterFee;
         if (tokenAddress == address(tokenA)) {
-            tokenAFee = tokenAmount.mul(SWAP_FEE_PERCENT).div(1000); 
+            tokenAFee = tokenAmount.mul(SWAP_FEE_PERCENT).div(1000);
             tokenAAmountAfterFee = tokenAmount.sub(tokenAFee);
             tokenA.safeTransferFrom(msg.sender, address(this), tokenAmount);
             swapFeeBalance = swapFeeBalance.add(tokenAFee);
             tokenB.safeTransfer(msg.sender, tokenAAmountAfterFee);
             emit TokensSwapped(msg.sender, tokenAmount, 0, tokenAFee);
         } else if (tokenAddress == address(tokenB)) {
-            tokenBFee = tokenAmount.mul(SWAP_FEE_PERCENT).div(1000); // Calculate 0.5% fee
+            tokenBFee = tokenAmount.mul(SWAP_FEE_PERCENT).div(1000); 
             tokenBAmountAfterFee = tokenAmount.sub(tokenBFee);
             tokenB.safeTransferFrom(msg.sender, address(this), tokenAmount);
             swapFeeBalance = swapFeeBalance.add(tokenBFee);
             tokenA.safeTransfer(msg.sender, tokenBAmountAfterFee);
             emit TokensSwapped(msg.sender, 0, tokenAmount, tokenBFee);
         } else {
-           revert("Invalid token address provided");
-    }}
+            revert("Invalid token address provided");
+        }
+    }
+
+    function _dynamicSwap(address tokenAddress, uint256 tokenAmount) internal {
+        uint256 tokenAFee;
+        uint256 tokenBFee;
+        uint256 tokenAAmountAfterFee;
+        uint256 tokenBAmountAfterFee;
+        uint256 price = priceFeed.getTokenAPrice(); 
+        if (tokenAddress == address(tokenA)) {
+            tokenAFee = tokenAmount.mul(SWAP_FEE_PERCENT).div(1000).mul(price).div(1e18);
+            tokenAAmountAfterFee = tokenAmount.sub(tokenAFee);
+            tokenA.safeTransferFrom(msg.sender, address(this), tokenAmount);
+            swapFeeBalance = swapFeeBalance.add(tokenAFee);
+            tokenB.safeTransfer(msg.sender, tokenAAmountAfterFee);
+            emit TokensSwapped(msg.sender, tokenAmount, 0, tokenAFee);
+        } else if (tokenAddress == address(tokenB)) {
+            tokenBFee = tokenAmount.mul(SWAP_FEE_PERCENT).div(1000).mul(price).div(1e18); 
+            tokenBAmountAfterFee = tokenAmount.sub(tokenBFee);
+            tokenB.safeTransferFrom(msg.sender, address(this), tokenAmount);
+            swapFeeBalance = swapFeeBalance.add(tokenBFee);
+            tokenA.safeTransfer(msg.sender, tokenBAmountAfterFee);
+            emit TokensSwapped(msg.sender, 0, tokenAmount, tokenBFee);
+        } else {
+            revert("Invalid token address provided");
+        }
+    }
     function provideLiquidity(uint256 tokenAAmount, uint256 tokenBAmount) external {
         require(tokenAAmount > 0 && tokenBAmount > 0, "Token amounts must be greater than 0");
         tokenA.safeTransferFrom(msg.sender, address(this), tokenAAmount);
         tokenB.safeTransferFrom(msg.sender, address(this), tokenBAmount);
-        uint256 liquidityTokensMinted = tokenAAmount / tokenBAmount; 
-        liquidityToken.mint(address(this), liquidityTokensMinted);
-        sendLiquidityTokens(msg.sender, liquidityTokensMinted);
-        emit LiquidityProvided(msg.sender, tokenAAmount, tokenBAmount, liquidityTokensMinted);
+        uint256 liquidityMinted;
+        uint256 liquidityTotalSupply = liquidityToken.totalSupply();
+        if (liquidityTotalSupply == 0) {
+            liquidityMinted = tokenAAmount.mul(tokenBAmount);
+        } else {
+            uint256 reserveA = tokenA.balanceOf(address(this));
+            uint256 reserveB = tokenB.balanceOf(address(this));
+            uint256 liquidityA = tokenAAmount.mul(liquidityTotalSupply).div(reserveA);
+            uint256 liquidityB = tokenBAmount.mul(liquidityTotalSupply).div(reserveB);
+            liquidityMinted = liquidityA < liquidityB ? liquidityA : liquidityB;
+        }
+        liquidityToken.mint(address(this), liquidityMinted);
+        sendLiquidityTokens(msg.sender, liquidityMinted);
+        emit LiquidityProvided(msg.sender, tokenAAmount, tokenBAmount, liquidityMinted);
     }
 
     function sendLiquidityTokens(address recipient, uint256 amount) internal {
-    liquidityToken.transfer(recipient, amount);
-    emit LiquidityTokensSent(recipient, amount);
-}
+        liquidityToken.transfer(recipient, amount);
+        emit LiquidityTokensSent(recipient, amount);(recipient, amount);
+    }
 
     function withdrawLiquidity(uint256 liquidityTokenAmount) external {
         require(liquidityTokenAmount > 0, "Liquidity token amount must be greater than 0");
@@ -239,18 +277,20 @@ contract CoFinance {
         emit LoanRepaid(msg.sender, loanAmount);
     }
 
-    function addCollateralA(uint256 collateralAmount) external {
-        require(collateralAmount > 0, "Collateral amount must be greater than 0");
-        tokenA.safeTransferFrom(msg.sender, address(this), collateralAmount);
-        collateralA[msg.sender] = collateralA[msg.sender].add(collateralAmount);
-        emit CollateralDeposited(msg.sender, address(tokenA), collateralAmount);
-    }
+    function addcollateralize(address tokenAddress, uint256 amount) external {
+        require(amount > 0, "Collateral amount must be greater than 0");
 
-    function addCollateralB(uint256 collateralAmount) external {
-        require(collateralAmount > 0, "Collateral amount must be greater than 0");
-        tokenB.safeTransferFrom(msg.sender, address(this), collateralAmount);
-        collateralB[msg.sender] = collateralB[msg.sender].add(collateralAmount);
-        emit CollateralDeposited(msg.sender, address(tokenB), collateralAmount);
+        if (tokenAddress == address(tokenA)) {
+            tokenA.safeTransferFrom(msg.sender, address(this), amount);
+            collateralA[msg.sender] = collateralA[msg.sender].add(amount);
+        } else if (tokenAddress == address(tokenB)) {
+            tokenB.safeTransferFrom(msg.sender, address(this), amount);
+            collateralB[msg.sender] = collateralB[msg.sender].add(amount);
+        } else {
+            revert("Invalid token address provided");
+        }
+
+        emit CollateralDeposited(msg.sender, tokenAddress, amount);
     }
 
     function withdrawCollateralA(uint256 collateralAmount) external {
@@ -261,24 +301,32 @@ contract CoFinance {
         emit CollateralWithdrawn(msg.sender, collateralAmount);
     }
 
-    function withdrawCollateralB(uint256 collateralAmount) external {
-        require(collateralAmount > 0, "Collateral amount must be greater than 0");
-        require(collateralAmount <= collateralB[msg.sender], "Not enough collateral B");
-        collateralB[msg.sender] = collateralB[msg.sender].sub(collateralAmount);
-        tokenB.safeTransfer(msg.sender, collateralAmount);
-        emit CollateralWithdrawn(msg.sender, collateralAmount);
+    function withdrawCollateral(uint256 amount) external {
+        require(collateralA[msg.sender] >= amount || collateralB[msg.sender] >= amount, "Insufficient collateral");
+
+        if (collateralA[msg.sender] >= amount) {
+            collateralA[msg.sender] = collateralA[msg.sender].sub(amount);
+            tokenA.safeTransfer(msg.sender, amount);
+        } else {
+            collateralB[msg.sender] = collateralB[msg.sender].sub(amount);
+            tokenB.safeTransfer(msg.sender, amount);
+        }
+
+        emit CollateralWithdrawn(msg.sender, amount);
     }
 
-    function liquidateCollateral(address borrower) external {
-        require(borrowed[borrower] > 0, "No tokens borrowed");
-        uint256 amount = borrowed[borrower].mul(loanDuration[borrower]).div(SECONDS_IN_30_DAYS).mul(INTEREST_RATE).div(100);
-        require(collateralA[msg.sender] >= amount, "Not enough collateral A");
-        require(collateralB[msg.sender] >= amount, "Not enough collateral B");
-        collateralA[msg.sender] = collateralA[msg.sender].sub(amount);
-        collateralB[msg.sender] = collateralB[msg.sender].sub(amount);
-        tokenA.safeTransfer(borrower, amount);
-        tokenB.safeTransfer(borrower, amount);
-        emit CollateralLiquidated(borrower, amount);
+    function liquidateCollateral() external {
+        uint256 collateralAmount = collateralA[msg.sender].add(collateralB[msg.sender]);
+        require(collateralAmount > 0, "No collateral to liquidate");
+        collateralA[msg.sender] = 0;
+        collateralB[msg.sender] = 0;
+        tokenA.safeTransfer(owner, collateralAmount);
+        emit CollateralLiquidated(msg.sender, collateralAmount);
+    }
+
+    function getMaxLoanAmount() public view returns (uint256) {
+        uint256 totalCollateral = collateralA[msg.sender].add(collateralB[msg.sender]);
+        return totalCollateral.mul(MAX_LTV_PERCENT).div(100);
     }
 
     function stakeTokens(uint256 amount, uint256 duration) external {
@@ -337,4 +385,31 @@ contract CoFinance {
         tokenA.safeTransfer(owner, amount);
         emit InterestFeeWithdrawn(owner, amount);
     }
+
+    function updateSwapFee(uint256 newFeePercent) external {
+        require(msg.sender == owner, "Only owner can update swap fee");
+        SWAP_FEE_PERCENT = newFeePercent;
+    }
+
+    function updateOwnerShare(uint256 newOwnerSharePercent) external {
+        require(msg.sender == owner, "Only owner can update owner share");
+        OWNER_SHARE_PERCENT = newOwnerSharePercent;
+    }
+
+    function updateIncentivizedPool(bool incentivized) external {
+        require(msg.sender == owner, "Only owner can update pool incentives");
+        isPoolIncentivized = incentivized;
+    }
+
+    function sqrt(uint256 x) internal pure returns (uint256 y) {
+        if (x == 0) return 0;
+            if (x <= 3) return 1;
+            uint256 z = (x + 1) / 2;
+            y = x;
+            while (z < y) {
+                y = z;
+                z = (x / z + z) / 2;
+            }
+    }
+
 }
