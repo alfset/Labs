@@ -1,7 +1,3 @@
-Certainly! I've refined your `README.md` to ensure clarity and consistency in the formulas and descriptions. Here’s the updated version:
-
----
-
 # CoFinanceFactory Contract
 
 ## Overview
@@ -123,13 +119,17 @@ const poolAddress = await coFinanceFactory.getPoolByPair(tokenAAddress, tokenBAd
 
 TVL is the sum of all assets held within the pool. It can be calculated as:
 
-- TVL = Liquidity Token Amount × Token Price
+$$
+\text{TVL} = \text{Liquidity Token Amount} \times \text{Token Price}
+$$
 
 ### Collateral
 
 Collateral refers to the assets provided to support borrowing. It can be calculated as:
 
-- Collateral = Amount of Collateral Token × Collateral Token Price
+$$
+\text{Collateral} = \text{Amount of Collateral Token} \times \text{Collateral Token Price}
+$$
 
 ### Swap
 
@@ -139,7 +139,9 @@ Swapping involves exchanging one token for another within the pool. The swap amo
 
 Liquidity in a pool is measured by the amount of tokens available for trading. The liquidity formula is:
 
-- Liquidity = Amount of Token A + Amount of Token B
+$$
+\text{Liquidity} = \text{Amount of Token A} + \text{Amount of Token B}
+$$
 
 ## Detailed Formula Breakdown
 
@@ -148,26 +150,26 @@ Liquidity in a pool is measured by the amount of tokens available for trading. T
 #### Without Dynamic Price Feed
 
 - **Fee Calculation**:
-  \[
+  $$
   \text{tokenAFee} = \frac{\text{tokenAmount} \times \text{SWAP\_FEE\_PERCENT}}{1000}
-  \]
+  $$
 
 - **Amount After Fee**:
-  \[
+  $$
   \text{tokenAAmountAfterFee} = \text{tokenAmount} - \text{tokenAFee}
-  \]
+  $$
 
 #### With Dynamic Price Feed
 
 - **Fee Calculation**:
-  \[
-  \text{tokenAFee} = \frac{(\text{tokenAmount} \times \text{SWAP\_FEE\_PERCENT}) \times \text{price}}{1000 \times 1e18}
-  \]
+  $$
+  \text{tokenAFee} = \frac{(\text{tokenAmount} \times \text{SWAP\_FEE\_PERCENT}) \times \text{price}}{1000 \times 10^{18}}
+  $$
 
 - **Amount After Fee**:
-  \[
+  $$
   \text{tokenAAmountAfterFee} = \text{tokenAmount} - \text{tokenAFee}
-  \]
+  $$
 
 ### Liquidity Provision Formula
 
@@ -175,9 +177,9 @@ Liquidity in a pool is measured by the amount of tokens available for trading. T
 
 When adding liquidity to the pool for the first time (i.e., when the total supply of liquidity tokens is zero), the amount of liquidity tokens minted is calculated based on the square root of the product of the provided token amounts:
 
-\[
+$$
 \text{LiquidityMinted} = \sqrt{\text{TokenAAmount} \times \text{TokenBAmount}}
-\]
+$$
 
 where:
 - \(\text{TokenAAmount}\) is the amount of Token A provided.
@@ -187,9 +189,9 @@ where:
 
 For subsequent liquidity provision (when there is already existing liquidity in the pool), the amount of liquidity tokens minted is calculated proportionally based on the existing reserves of Token A and Token B in the pool:
 
-\[
+$$
 \text{LiquidityMinted} = \min \left( \frac{\text{TokenAAmount} \times \text{LiquidityTotalSupply}}{\text{ReserveA}}, \frac{\text{TokenBAmount} \times \text{LiquidityTotalSupply}}{\text{ReserveB}} \right)
-\]
+$$
 
 where:
 - \(\text{LiquidityTotalSupply}\) is the total supply of liquidity tokens in circulation.
@@ -201,44 +203,36 @@ where:
 #### Collateral
 
 - **Calculation**:
-  \[
+  $$
   \text{collateralAmountRequired} = \frac{\text{loanAmount} \times 100}{\text{MAX\_LTV\_PERCENT}}
-  \]
+  $$
 
 #### Interest Calculation
 
 - **Interest Fee Balance**:
-  \[
+  $$
   \text{interestFeeBalance} = \text{interestFeeBalance} + \frac{\text{loanAmount} \times \text{INTEREST\_RATE} \times (\text{block.timestamp} - \text{loanStartTime[msg.sender]})}{100 \times 365 \text{ days}}
-  \]
+  $$
 
 ### Staking Rewards Calculation
 
 - **Reward Calculation**:
-  \[
+  $$
   \text{reward} = \frac{\text{stakedAmount} \times \text{rewardRate} \times \text{stakeDuration}}{365 \text{ days}}
-  \]
+  $$
 
 ### Fee Withdrawals
 
 #### Swap Fee Withdrawal
 
 - **Calculation**:
-  \[
+  $$
   \text{amount} = \frac{\text{swapFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
-  \]
+  $$
 
 #### Interest Fee Withdrawal
 
 - **Calculation**:
-  \[
+  $$
   \text{amount} = \frac{\text{interestFeeBalance} \times \text{OWNER\_SHARE\_PERCENT}}{100}
-  \]
-
-## License
-
-This contract is licensed under the MIT License. See `LICENSE` for details.
-
----
-
-Feel free to make additional modifications as needed!
+  $$
