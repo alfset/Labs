@@ -2,22 +2,28 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { AppContext } from '../context/AppContext';
-import OracleABI from '../utils/abis/Oralce_ABI.json';  // Correct the path if necessary
+import LiquidityTokenABI from '../utils/abis/CoFinacne.json'; // Adjust path if necessary
+import CoFinanceABI from '../utils/abis/CoFinacne.json'; // Adjust path if necessary
 
-const contractAddress = '0x7b4c331cC2CB5D638D3c3c8145DE2BE9C276e7ca';
+const contractAddress = '0x8Dcb1F18ccFFb31725638C4EDDe570c4a1df1Da3'; // Replace with the CoFinance contract address
 
 const DAO = () => {
     const { currentAccount, networkProvider } = useContext(AppContext);
-    const [daoContract, setDaoContract] = useState(null);
+    const [coFinanceContract, setCoFinanceContract] = useState(null);
+    const [liquidityTokenContract, setLiquidityTokenContract] = useState(null);
     const [stakedAmount, setStakedAmount] = useState('0');
     const [additionalStake, setAdditionalStake] = useState('');
 
     useEffect(() => {
         if (networkProvider && currentAccount) {
             const signer = networkProvider.getSigner();
-            const contract = new ethers.Contract(contractAddress, OracleABI, signer);
-            setDaoContract(contract);
-            fetchStakedAmount(contract, currentAccount);
+            const coFinance = new ethers.Contract(contractAddress, CoFinanceABI, signer);
+            const liquidityToken = new ethers.Contract(contractAddress, LiquidityTokenABI, signer);
+
+            setCoFinanceContract(coFinance);
+            setLiquidityTokenContract(liquidityToken);
+
+            fetchStakedAmount(coFinance, currentAccount);
         }
     }, [networkProvider, currentAccount]);
 
@@ -31,13 +37,13 @@ const DAO = () => {
     };
 
     const joinDAO = async () => {
-        if (!daoContract) return;
+        if (!coFinanceContract) return;
 
         try {
-            const txResponse = await daoContract.joinDAO({ value: ethers.utils.parseEther("10") });
+            const txResponse = await coFinanceContract.stakeTokens(ethers.utils.parseEther("10"), 0); // Adjust parameters as per your contract
             await txResponse.wait();
             alert('Successfully joined DAO!');
-            fetchStakedAmount(daoContract, currentAccount);
+            fetchStakedAmount(coFinanceContract, currentAccount);
         } catch (error) {
             console.error('Failed to join DAO:', error);
             alert('Error joining DAO');
@@ -45,13 +51,13 @@ const DAO = () => {
     };
 
     const addStake = async () => {
-        if (!daoContract || !additionalStake) return;
+        if (!coFinanceContract || !additionalStake) return;
 
         try {
-            const txResponse = await daoContract.addStake({ value: ethers.utils.parseEther(additionalStake) });
+            const txResponse = await coFinanceContract.stakeTokens(ethers.utils.parseEther(additionalStake), 0); // Adjust parameters as per your contract
             await txResponse.wait();
             alert('Successfully added stake!');
-            fetchStakedAmount(daoContract, currentAccount);
+            fetchStakedAmount(coFinanceContract, currentAccount);
             setAdditionalStake('');
         } catch (error) {
             console.error('Failed to add stake:', error);

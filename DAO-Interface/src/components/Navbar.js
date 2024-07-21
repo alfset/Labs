@@ -21,6 +21,11 @@ const networks = {
     chainId: '0x61', // Optimism Sepolia Testnet
     chainName: 'BNB Testnet',
     rpcUrls: ['https://bsc-testnet-rpc.publicnode.com'],
+  },
+  CrossFinance: {
+    chainId: '0x103d', // Optimism Sepolia Testnet
+    chainName: 'Crossfi Testnet',
+    rpcUrls: ['https://rpc.testnet.ms'],
   }
 };
 
@@ -81,6 +86,8 @@ const Navbar = () => {
           <option value="Atlas">Planq</option>
           <option value="scroll">Scroll Sepolia</option>
           <option value="testBSC">Testnet BSC</option>
+          <option value="scroll">Scroll Sepolia</option>
+          <option value="CrossFinance">Cross FInance testnet</option>
         </select>
         <li className="bg-[#2952e3] py-2 px-7 mx-4 rounded-lg cursor-pointer hover:bg-[#2546bd]">
           <button onClick={connectWallet}>
