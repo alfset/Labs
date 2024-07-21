@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Button, Flex, Link, Text } from "@chakra-ui/react";
-import { ExternalLinkIcon, CopyIcon } from "@chakra-ui/icons";
+import { ExternalLinkIcon, CopyIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import Identicon from "./Identicon";
 import ConnectButton from "./ConnectButton";
@@ -27,6 +27,17 @@ const Navbar: React.FC<{ account: string | null; setAccount: React.Dispatch<Reac
     } catch (err) {
       console.error("Failed to request accounts:", err);
     }
+  };
+
+  const handleCloseSidebar = () => {
+    setShowSidebar(false);
+  };
+
+  const renderButtonText = () => {
+    if (account) {
+      return `${account.slice(0, 6)}...${account.slice(-4)}`;
+    }
+    return "Connect Wallet";
   };
 
   return (
@@ -56,7 +67,7 @@ const Navbar: React.FC<{ account: string | null; setAccount: React.Dispatch<Reac
           _hover={{ bg: "gray.600" }}
           mr={4}
         >
-          {showSidebar ? "Close Sidebar" : "Open Sidebar"}
+          {renderButtonText()}
         </Button>
       </Flex>
       {showSidebar && (
@@ -73,7 +84,19 @@ const Navbar: React.FC<{ account: string | null; setAccount: React.Dispatch<Reac
           boxShadow="md" // Optional: adds shadow for better visibility
         >
           <Flex direction="column" height="100%">
-            <Box mb={4}>
+            <Button
+              onClick={handleCloseSidebar}
+              bg="gray.700"
+              color="white"
+              _hover={{ bg: "gray.600" }}
+              position="absolute"
+              top="4"
+              right="4"
+              zIndex="1"
+            >
+              <CloseIcon />
+            </Button>
+            <Box mb={4} mt={10}>
               {account ? (
                 <Box
                   borderRadius="md"
@@ -83,9 +106,6 @@ const Navbar: React.FC<{ account: string | null; setAccount: React.Dispatch<Reac
                   background="gray.800"
                 >
                   <Flex justifyContent="space-between" alignItems="center" mb={4}>
-                    <Text color="gray.400" fontSize="sm">
-                      Connected with MetaMask
-                    </Text>
                     <Button
                       variant="outline"
                       size="sm"

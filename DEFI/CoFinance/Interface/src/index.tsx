@@ -1,18 +1,13 @@
 // src/index.tsx
 
-import React from "react";
-import ReactDOM from "react-dom";
-import { ChakraProvider } from "@chakra-ui/react";
-import { DAppProvider, Config } from "@usedapp/core";
-import App from "./App";
-
-const config: Config = {};
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { ChakraProvider } from '@chakra-ui/react';
+import App from './App';
 
 ReactDOM.render(
   <ChakraProvider>
-    <DAppProvider config={config}>
-      <App />
-    </DAppProvider>
+    <App />
   </ChakraProvider>,
-  document.getElementById("root")
+  document.getElementById('root')
 );
