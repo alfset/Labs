@@ -9,7 +9,6 @@ const HomePage = () => {
     const [totalMembers, setTotalMembers] = useState('Loading...');
     const [totalChains, setTotalChains] = useState('Loading...');
     const [totalData, setTotalData] = useState('Loading...');
-    const [priceUpdates, setPriceUpdates] = useState({});
 
 
     useEffect(() => {
