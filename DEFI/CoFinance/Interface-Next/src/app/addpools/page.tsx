@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import Select, { components } from 'react-select';
 import tokens from '../../data/token.json';
-import ConnectButton from '../../components/ConnectButton'; 
 
 // Custom styles for react-select
 const customStyles = {
@@ -60,8 +59,6 @@ function AddPool() {
   const [tokenB, setTokenB] = useState<{ value: string; label: string; image: string } | null>(null);
   const [amountA, setAmountA] = useState('');
   const [amountB, setAmountB] = useState('');
-  const [account, setAccount] = useState<string | null>(null); // State for connected account
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // State for account modal
 
   const tokenOptions = tokens.tokens.map((token) => ({
     value: token.name,
@@ -70,16 +67,11 @@ function AddPool() {
   }));
 
   const handleAddPool = () => {
-    // Add pool logic here
     console.log('Adding liquidity:', amountA, tokenA, 'and', amountB, tokenB);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-36">
-      <div className="fixed top-4 right-4 z-50">
-        <ConnectButton account={account} setAccount={setAccount} />
-      </div>
-
       <h1 className="text-lg md:text-7xl text-center font-sans font-bold mb-8 text-white">Add Liquidity to Pool</h1>
 
       <div className="text-center text-white mb-12">

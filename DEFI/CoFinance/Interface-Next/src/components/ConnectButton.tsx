@@ -1,8 +1,8 @@
-'use client';
+'use client'; // Ensure this file is treated as a client component
+
 import React from 'react';
-import { ethers } from 'ethers';
-import AccountModal from './AccountModal';
-import { Button } from '../components/ui/moving-border'
+import { Button } from '../components/ui/moving-border';
+import { connectMetaMask } from '../utils/wallet'; // Update path as necessary
 
 interface ConnectButtonProps {
   account: string | null;
@@ -11,23 +11,22 @@ interface ConnectButtonProps {
 
 const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) => {
   const [connected, setConnected] = React.useState<boolean>(!!account);
-  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
 
-  const handleConnectWallet = async () => {
+  React.useEffect(() => {
+    setConnected(!!account);
+  }, [account]);
+
+  const handleConnectMetaMask = async () => {
     try {
-      if ((window as any).ethereum) {
-        const provider = new ethers.BrowserProvider((window as any).ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const address = await (await signer).getAddress();
-        console.log(address)
+      const address = await connectMetaMask();
+      if (address) {
         setAccount(address);
         setConnected(true);
       } else {
-        console.error("No Ethereum provider detected");
+        console.error("Failed to connect MetaMask.");
       }
     } catch (err) {
-      console.error("Failed to connect wallet:", err);
+      console.error("Failed to connect MetaMask:", err);
     }
   };
 
@@ -37,19 +36,11 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) =>
   };
 
   return (
-    <>
-      <Button
-        onClick={connected ? handleDisconnectWallet : handleConnectWallet}
-      >
-        {connected ? `Disconnect` : `Connect Wallet`}
-      </Button>
-      <AccountModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        account={account}
-        setAccount={setAccount}
-      />
-    </>
+    <Button
+      onClick={connected ? handleDisconnectWallet : handleConnectMetaMask}
+    >
+      {connected ? `${account?.substring(0, 6)}...${account?.substring(account.length - 4)}` : 'Connect Wallet'}
+    </Button>
   );
 };
 

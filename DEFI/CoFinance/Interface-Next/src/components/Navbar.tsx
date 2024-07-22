@@ -33,7 +33,7 @@ const Navbar = ({ className }: { className?: string }) => {
                 "fixed top-10 inset-x-0 max-w-2xl mx-auto z-50 transition-transform",
                 showNavbar ? "translate-y-0" : "-translate-y-full",
                 className,
-                "bg-transparent" // Ensure background is transparent
+                "bg-transparent" 
             )}
         >
             <Menu setActive={setActive}>
@@ -44,11 +44,11 @@ const Navbar = ({ className }: { className?: string }) => {
                 </Link>
                 <MenuItem setActive={setActive} active={active} item="Explore">
                     <div className="flex flex-col space-y-4 text-sm">
-                        <HoveredLink href="/courses">Apps</HoveredLink>
-                        <HoveredLink href="/courses">Staking</HoveredLink>
-                        <HoveredLink href="/courses">Pool</HoveredLink>
-                        <HoveredLink href="/courses">Lending And Borrowing</HoveredLink>
-                        <HoveredLink href="/courses">Oracle Service</HoveredLink>
+                        <HoveredLink href="/swap">Apps</HoveredLink>
+                        <HoveredLink href="/pools">Staking</HoveredLink>
+                        <HoveredLink href="/borrow">Pool</HoveredLink>
+                        <HoveredLink href="/staking">Lending And Borrowing</HoveredLink>
+                        <HoveredLink href="/portofolio">Oracle Service</HoveredLink>
                     </div>
                 </MenuItem>
             </Menu>
