@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Select, { components } from 'react-select';
 import tokens from '../../data/token.json';
+import { Button } from '../../components/ui/moving-border'
 
 // Custom styles for react-select
 const customStyles = {
@@ -67,12 +68,11 @@ function AddPool() {
   }));
 
   const handleAddPool = () => {
-    // Add pool logic here
     console.log('Adding liquidity:', amountA, tokenA, 'and', amountB, tokenB);
   };
 
   return (
-    <div className="min-h-screen bg-black py-12 pt-36">
+    <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-36">
       <h1 className="text-lg md:text-7xl text-center font-sans font-bold mb-8 text-white">Add Liquidity to Pool</h1>
 
       <div className="text-center text-white mb-12">
@@ -80,9 +80,8 @@ function AddPool() {
       </div>
 
       <div className="flex justify-center mb-12">
-        <div className="bg-glossy-black p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-md backdrop-blur-sm">
           <div className="mb-4">
-            <label className="block text-white mb-2">Token A</label>
             <Select
               options={tokenOptions}
               value={tokenA}
@@ -93,17 +92,15 @@ function AddPool() {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-white mb-2">Amount of Token A</label>
             <input
               type="number"
               value={amountA}
               onChange={(e) => setAmountA(e.target.value)}
               placeholder="Amount"
-              className="w-full p-2 bg-gray-700 border border-gray-600 rounded"
+              className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-white mb-2">Token B</label>
             <Select
               options={tokenOptions}
               value={tokenB}
@@ -120,15 +117,14 @@ function AddPool() {
               value={amountB}
               onChange={(e) => setAmountB(e.target.value)}
               placeholder="Amount"
-              className="w-full p-2 bg-gray-700 border border-gray-600 rounded"
+              className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
             />
           </div>
-          <button
+          <Button
             onClick={handleAddPool}
-            className="w-full py-2 bg-green-500 rounded-xl text-white font-bold"
           >
             Confirm Add to Pool
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@ import FeaturedBlockchainProjects from "@/components/FeaturedBlockchainProjects"
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import PromotionBanner from "@/components/Promotions";
-import UpcomingWebminars from "@/components/UpcomingWebminars";
+import SuportedNetwork from "@/components/SuportedNetwork";
 import WhyChooseUs from "@/components/WhyChooseUs";
 
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
         <PromotionBanner/>
         <FeaturedBlockchainProjects />
         <WhyChooseUs />
-        <UpcomingWebminars/>
+        <SuportedNetwork/>
         <Footer/>
       </main>
     </>

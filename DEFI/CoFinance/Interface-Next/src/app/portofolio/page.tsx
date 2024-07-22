@@ -74,28 +74,28 @@ const stakingAssets = 1200;
 
 function Portofolio() {
   return (
-    <div className="min-h-screen bg-black py-12 pt-24">
+    <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-24">
       {/* Portfolio Header */}
       <div className="text-center mb-12">
         <h1 className="text-3xl md:text-7xl font-sans font-bold mb-8 text-white pb-2">
-         
+          Portfolio Overview
         </h1>
-        <div className="bg-transparent rounded-lg shadow-lg w-full max-w-4xl mx-auto">
-          <h2 className="text-2xl font-semibold text-white mb-4"> Portfolio Overview</h2>
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-lg shadow-lg w-full max-w-4xl mx-auto backdrop-blur-sm">
+          <h2 className="text-2xl font-semibold text-white mb-4">Portfolio Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-transparent border border-transparent p-4 rounded-lg shadow-md">
+            <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-4 rounded-lg shadow-md backdrop-blur-sm">
               <h3 className="text-xl font-semibold text-white mb-2">Total Assets</h3>
               <p className="text-lg text-white">Total Liquidity: {totalLiquidity.toFixed(2)} tokens</p>
             </div>
-            <div className="bg-transparent border border-transparent p-4 rounded-lg shadow-md">
+            <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-4 rounded-lg shadow-md backdrop-blur-sm">
               <h3 className="text-xl font-semibold text-white mb-2">Staked Pools</h3>
               <p className="text-lg text-white">${stakedPools.toFixed(2)}</p>
             </div>
-            <div className="bg-transparent border border-transparent p-4 rounded-lg shadow-md">
+            <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-4 rounded-lg shadow-md backdrop-blur-sm">
               <h3 className="text-xl font-semibold text-white mb-2">Borrowed Amount</h3>
               <p className="text-lg text-white">${borrowedAmount.toFixed(2)}</p>
             </div>
-            <div className="bg-transparent border border-transparent p-4 rounded-lg shadow-md">
+            <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-4 rounded-lg shadow-md backdrop-blur-sm">
               <h3 className="text-xl font-semibold text-white mb-2">Staking Assets</h3>
               <p className="text-lg text-white">${stakingAssets.toFixed(2)}</p>
             </div>
@@ -105,21 +105,21 @@ function Portofolio() {
 
       {/* Pools Section */}
       <div className="flex justify-center mb-12">
-        <div className="bg-transparent border border-transparent p-6 rounded-lg shadow-lg w-full max-w-6xl">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-6 rounded-lg shadow-lg w-full max-w-6xl backdrop-blur-sm">
           {pools.length === 0 ? (
             <p className="text-white text-center">No pools available</p>
           ) : (
             <ul className="space-y-4">
               {pools.map((pool) => (
-                <li key={pool.id} className="p-6 rounded-lg border border-transparent bg-transparent hover:bg-gray-800 transition duration-300 ease-in-out flex items-center justify-between">
+                <li key={pool.id} className="p-6 rounded-lg border border-gray-600 bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center">
-                      <img src={pool.imageA} alt={pool.tokenA} className="w-12 h-12 mr-3 rounded-full border border-transparent" />
+                      <img src={pool.imageA} alt={pool.tokenA} className="w-12 h-12 mr-3 rounded-full border border-gray-600" />
                       <span className="text-white font-bold">{pool.tokenA}</span>
                     </div>
                     <span className="text-gray-400 mx-2">-</span>
                     <div className="flex items-center">
-                      <img src={pool.imageB} alt={pool.tokenB} className="w-12 h-12 mr-3 rounded-full border border-transparent" />
+                      <img src={pool.imageB} alt={pool.tokenB} className="w-12 h-12 mr-3 rounded-full border border-gray-600" />
                       <span className="text-white font-bold">{pool.tokenB}</span>
                     </div>
                   </div>
@@ -135,16 +135,16 @@ function Portofolio() {
 
       {/* Token Holders Section */}
       <div className="flex justify-center mb-12">
-        <div className="bg-transparent border border-transparent p-6 rounded-lg shadow-lg w-full max-w-6xl">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-6 rounded-lg shadow-lg w-full max-w-6xl backdrop-blur-sm">
           <h2 className="text-2xl font-semibold text-white mb-4">Token Holders</h2>
           {tokenHolders.length === 0 ? (
             <p className="text-white text-center">No token holders available</p>
           ) : (
             <ul className="space-y-4">
               {tokenHolders.map((holder) => (
-                <li key={holder.id} className="p-6 rounded-lg border border-transparent bg-transparent hover:bg-gray-800 transition duration-300 ease-in-out flex items-center justify-between">
+                <li key={holder.id} className="p-6 rounded-lg border border-gray-600 bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <img src={holder.image} alt={holder.name} className="w-12 h-12 mr-3 rounded-full border border-transparent" />
+                    <img src={holder.image} alt={holder.name} className="w-12 h-12 mr-3 rounded-full border border-gray-600" />
                     <span className="text-white font-bold">{holder.name}</span>
                   </div>
                   <div className="space-y-2 text-right">
@@ -159,16 +159,16 @@ function Portofolio() {
 
       {/* Staking Tokens Section */}
       <div className="flex justify-center">
-        <div className="bg-transparent border border-transparent p-6 rounded-lg shadow-lg w-full max-w-6xl">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-6 rounded-lg shadow-lg w-full max-w-6xl backdrop-blur-sm">
           <h2 className="text-2xl font-semibold text-white mb-4">Staking Tokens</h2>
           {stakingTokens.length === 0 ? (
             <p className="text-white text-center">No staking tokens available</p>
           ) : (
             <ul className="space-y-4">
               {stakingTokens.map((token) => (
-                <li key={token.id} className="p-6 rounded-lg border border-transparent bg-transparent hover:bg-gray-800 transition duration-300 ease-in-out flex items-center justify-between">
+                <li key={token.id} className="p-6 rounded-lg border border-gray-600 bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <img src={token.image} alt={token.tokenName} className="w-12 h-12 mr-3 rounded-full border border-transparent" />
+                    <img src={token.image} alt={token.tokenName} className="w-12 h-12 mr-3 rounded-full border border-gray-600" />
                     <span className="text-white font-bold">{token.tokenName}</span>
                   </div>
                   <div className="space-y-2 text-right">

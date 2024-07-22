@@ -1,6 +1,5 @@
 'use client';
-import Link from "next/link";
-import { HoverEffect } from "./ui/card-hover-effect";
+import { HoverEffect } from "./ui/card-hover-effect";  
 
 // Sample token data; replace with actual token data source
 const featuredTokens = [
@@ -54,8 +53,7 @@ function UpcomingTokens() {
             <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-md z-[-1]"></div>
             <div className="relative max-w-7xl mx-auto">
                 <div className="text-center">
-                    <h2 className="text-base text-teal-600 font-semibold tracking-wide uppercase">FEATURED TOKENS</h2>
-                    <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">Explore the Leading Blockchain Projects</p>
+                    <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">Our Suported Network</p>
                 </div>
 
                 <div className="mt-10">
@@ -64,7 +62,8 @@ function UpcomingTokens() {
                             {
                                 title: token.name,
                                 description: token.description,
-                                link: `/tokens/${token.slug}`
+                                link: `/tokens/${token.slug}`,
+                                className: "bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg shadow-lg border border-gray-700 rounded-lg hover:bg-opacity-70 transition duration-200 ease-in-out"
                             }
                         ))}
                     />

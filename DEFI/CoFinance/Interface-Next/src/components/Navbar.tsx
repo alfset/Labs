@@ -13,10 +13,8 @@ const Navbar = ({ className }: { className?: string }) => {
         const handleScroll = () => {
             const currentScroll = window.scrollY;
             if (currentScroll > lastScrollTop) {
-                // Scrolling down
                 setShowNavbar(false);
             } else {
-                // Scrolling up
                 setShowNavbar(true);
             }
             setLastScrollTop(currentScroll);
@@ -30,36 +28,39 @@ const Navbar = ({ className }: { className?: string }) => {
     }, [lastScrollTop]);
 
     return (
-        <>
-            <div
-                className={cn(
-                    "fixed top-10 inset-x-0 max-w-2xl mx-auto z-50 transition-transform",
-                    showNavbar ? "translate-y-0" : "-translate-y-full",
-                    className
-                )}
-            >
-                <Menu setActive={setActive}>
-                    <Link href={"/"}>
-                        <MenuItem setActive={setActive} active={active} item="Home">
-                            {/* Home */}
-                        </MenuItem>
-                    </Link>
-                    <MenuItem setActive={setActive} active={active} item="Explore">
-                        <div className="flex flex-col space-y-4 text-sm">
-                            <HoveredLink href="/courses">Apps</HoveredLink>
-                            <HoveredLink href="/courses">Staking</HoveredLink>
-                            <HoveredLink href="/courses">Pool</HoveredLink>
-                            <HoveredLink href="/courses">Lending And Borrowing</HoveredLink>
-                            <HoveredLink href="/courses">Oracle Service</HoveredLink>
-                        </div>
+        <div
+            className={cn(
+                "fixed top-10 inset-x-0 max-w-2xl mx-auto z-50 transition-transform",
+                showNavbar ? "translate-y-0" : "-translate-y-full",
+                className,
+                "bg-transparent" 
+            )}
+        >
+            <Menu setActive={setActive}>
+                <Link href={"/"}>
+                    <MenuItem setActive={setActive} active={active} item="Home">
                     </MenuItem>
-                    <Link href={"/contact"}>
-                        <MenuItem setActive={setActive} active={active} item="Contact Us">
-                        </MenuItem>
-                    </Link>
-                </Menu>
-            </div>
-        </>
+                </Link>
+                <Link href={"/swap"}>
+                    <MenuItem setActive={setActive} active={active} item="swap">
+                    </MenuItem>
+                </Link>
+                <Link href={"/borrow"}>
+                    <MenuItem setActive={setActive} active={active} item="Borrow">
+                    </MenuItem>
+                </Link>
+                <Link href={"/portofolio"}>
+                    <MenuItem setActive={setActive} active={active} item="Portofolio">
+                    </MenuItem>
+                </Link>
+                <MenuItem setActive={setActive} active={active} item="Earn">
+                    <div className="flex flex-col space-y-4 text-sm">
+                        <HoveredLink href="/staking">Staking</HoveredLink>
+                        <HoveredLink href="/pool">Pool</HoveredLink>
+                    </div>
+                </MenuItem>
+            </Menu>
+        </div>
     );
 };
 

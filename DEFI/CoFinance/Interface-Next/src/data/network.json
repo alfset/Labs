@@ -1,59 +1,25 @@
 {
-    "projects": [
+  "projects": [
       {
-        "name": "Ethereum",
-        "description": "A decentralized platform that enables smart contracts and decentralized applications (dApps) to be built and run without any downtime, fraud, control, or interference from a third party.",
-        "image": "/favicon.ico",
-        "website": "https://ethereum.org"
+          "name": "Project One",
+          "description": "Description of Project One.",
+          "image": "/promotions/planq.jpg",
+          "website": "https://project-one.com",
+          "category": "Trade"
       },
       {
-        "name": "Base",
-        "description": "An innovative blockchain project focusing on scalable smart contract deployment and integration with EVM-compatible chains.",
-        "image": "/favicon.ico",
-        "website": "https://swisstronik.org"
+          "name": "Project Two",
+          "description": "Description of Project Two.",
+          "image": "/promotions/planq.jpg",
+          "website": "https://project-two.com",
+          "category": "Earn"
       },
       {
-        "name": "Binance",
-        "description": "An innovative blockchain project focusing on scalable smart contract deployment and integration with EVM-compatible chains.",
-        "image": "/favicon.ico",
-        "website": "https://swisstronik.org"
-      },
-      {
-        "name": "Cardano",
-        "description": "A blockchain platform for smart contracts, aiming to provide a more secure and scalable infrastructure for decentralized applications and crypto-assets.",
-        "image": "/favicon.ico",
-        "website": "https://cardano.org"
-      },
-      {
-        "name": "Swisstronik",
-        "description": "An innovative blockchain project focusing on scalable smart contract deployment and integration with EVM-compatible chains.",
-        "image": "/favicon.ico",
-        "website": "https://swisstronik.org"
-      },
-      {
-        "name": "Planq",
-        "description": "A decentralized network focused on secure and scalable cross-chain interactions and decentralized finance applications.",
-        "image": "/favicon.ico",
-        "website": "https://planq.network"
-      },
-      {
-        "name": "Solana",
-        "description": "A high-performance blockchain supporting decentralized applications and crypto-currencies with high throughput and low transaction costs.",
-        "image": "/favicon.ico",
-        "website": "https://solana.com"
-      },
-      {
-        "name": "Avalanche",
-        "description": "A platform for building and deploying decentralized applications and custom blockchain networks, aiming for high scalability and low latency.",
-        "image": "/favicon.ico",
-        "website": "https://avax.network"
-      },
-      {
-        "name": "Tezos",
-        "description": "A self-amending blockchain that provides a secure and scalable infrastructure for smart contracts and decentralized applications.",
-        "image": "/favicon.ico",
-        "website": "https://tezos.com"
-      }
-    ]
-  }
-  
+        "name": "Project Three",
+        "description": "Description of Project Two.",
+        "image": "/promotions/planq.jpg",
+        "website": "https://project-two.com",
+        "category": "Earn"
+    }
+  ]
+}

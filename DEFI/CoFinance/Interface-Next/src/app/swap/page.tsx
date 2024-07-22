@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Select, { components } from 'react-select';
 import tokens from '../../data/token.json';
+import { Button } from '../../components/ui/moving-border';
 
 // Custom styles for react-select
 const customStyles = {
@@ -72,7 +73,7 @@ function Swap() {
   };
 
   return (
-    <div className="min-h-screen bg-black py-12 pt-36">
+    <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-36">
       <h1 className="text-lg md:text-7xl text-center font-sans font-bold mb-8 text-white">Swap Tokens</h1>
 
       <div className="text-center text-white mb-12">
@@ -80,7 +81,7 @@ function Swap() {
       </div>
 
       <div className="flex justify-center mb-12">
-        <div className="bg-glossy-black p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-md backdrop-blur-sm">
           <div className="mb-4">
             <label className="block text-white mb-2">From Token</label>
             <Select
@@ -123,12 +124,11 @@ function Swap() {
               className="w-full p-2 bg-transparent border border-gray-600 text-white rounded"
             />
           </div>
-          <button
+          <Button
             onClick={handleSwap}
-            className="w-full py-2 bg-green-500 rounded-xl text-white font-bold"
           >
             Confirm Swap
-          </button>
+          </Button>
         </div>
       </div>
     </div>
