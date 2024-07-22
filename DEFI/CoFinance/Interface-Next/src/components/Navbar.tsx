@@ -49,10 +49,14 @@ const Navbar = ({ className }: { className?: string }) => {
                     <MenuItem setActive={setActive} active={active} item="Borrow">
                     </MenuItem>
                 </Link>
+                <Link href={"/portofolio"}>
+                    <MenuItem setActive={setActive} active={active} item="Portofolio">
+                    </MenuItem>
+                </Link>
                 <MenuItem setActive={setActive} active={active} item="Earn">
                     <div className="flex flex-col space-y-4 text-sm">
-                        <HoveredLink href="/pools">Staking</HoveredLink>
-                        <HoveredLink href="/borrow">Pool</HoveredLink>
+                        <HoveredLink href="/staking">Staking</HoveredLink>
+                        <HoveredLink href="/pool">Pool</HoveredLink>
                     </div>
                 </MenuItem>
             </Menu>
