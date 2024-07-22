@@ -1,74 +1,9 @@
 "use client";
-import React from "react";
-import {
-    motion,
-    useAnimationFrame,
-    useMotionTemplate,
-    useMotionValue,
-    useTransform,
-} from "framer-motion";
-import { useRef } from "react";
+import React, { useRef } from "react";
+import { motion, useAnimationFrame, useMotionTemplate, useMotionValue, useTransform } from "framer-motion";
 import { cn } from "@/utils/cn";
 
-export function Button({
-    borderRadius = "1.75rem",
-    children,
-    as: Component = "button",
-    containerClassName,
-    borderClassName,
-    duration,
-    className,
-    ...otherProps
-}: {
-    borderRadius?: string;
-    children: React.ReactNode;
-    as?: any;
-    containerClassName?: string;
-    borderClassName?: string;
-    duration?: number;
-    className?: string;
-    [key: string]: any;
-}) {
-    return (
-        <Component
-            className={cn(
-                "bg-transparent relative text-xl  h-16 w-40 p-[1px] overflow-hidden ",
-                containerClassName
-            )}
-            style={{
-                borderRadius: borderRadius,
-            }}
-            {...otherProps}
-        >
-            <div
-                className="absolute inset-0"
-                style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
-            >
-                <MovingBorder duration={duration} rx="30%" ry="30%">
-                    <div
-                        className={cn(
-                            "h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--sky-500)_40%,transparent_60%)]",
-                            borderClassName
-                        )}
-                    />
-                </MovingBorder>
-            </div>
-
-            <div
-                className={cn(
-                    "relative bg-slate-900/[0.8] border border-slate-800 backdrop-blur-xl text-white flex items-center justify-center w-full h-full text-sm antialiased",
-                    className
-                )}
-                style={{
-                    borderRadius: `calc(${borderRadius} * 0.96)`,
-                }}
-            >
-                {children}
-            </div>
-        </Component>
-    );
-}
-
+// MovingBorder component reused from Button's effect
 export const MovingBorder = ({
     children,
     duration = 2000,
@@ -135,5 +70,100 @@ export const MovingBorder = ({
                 {children}
             </motion.div>
         </>
+    );
+};
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    borderRadius?: string;
+    containerClassName?: string;
+    borderClassName?: string;
+    duration?: number;
+}
+
+export function Button({
+    borderRadius = "1.75rem",
+    children,
+    containerClassName,
+    borderClassName,
+    duration,
+    className,
+    ...otherProps
+}: ButtonProps) {
+    return (
+        <button
+            className={cn(
+                "bg-transparent relative text-xl h-16 w-40 p-[1px] overflow-hidden",
+                containerClassName
+            )}
+            style={{ borderRadius }}
+            {...otherProps}
+        >
+            <div
+                className="absolute inset-0"
+                style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+            >
+                <MovingBorder duration={duration} rx="30%" ry="30%">
+                    <div
+                        className={cn(
+                            "h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--sky-500)_40%,transparent_60%)]",
+                            borderClassName
+                        )}
+                    />
+                </MovingBorder>
+            </div>
+
+            <div
+                className={cn(
+                    "relative bg-slate-900/[0.8] border border-slate-800 backdrop-blur-xl text-white flex items-center justify-center w-full h-full text-sm antialiased",
+                    className
+                )}
+                style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+            >
+                {children}
+            </div>
+        </button>
+    );
+}
+
+interface CardProps {
+    title: React.ReactNode;
+    content: React.ReactNode;
+    borderRadius?: string;
+    duration?: number;
+    className?: string;
+    borderClassName?: string;
+}
+
+export const Card = ({
+    title,
+    content,
+    borderRadius = "1.75rem",
+    duration = 2000,
+    className,
+    borderClassName,
+}: CardProps) => {
+    return (
+        <div
+            className={`relative overflow-hidden bg-black text-white rounded-lg shadow-lg p-6 ${className}`}
+            style={{ borderRadius }}
+        >
+            <div
+                className="absolute inset-0"
+                style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+            >
+                <MovingBorder duration={duration} rx="30%" ry="30%">
+                    <div
+                        className={`h-full w-full opacity-[0.8] bg-[radial-gradient(var(--sky-500)_40%,transparent_60%)] ${borderClassName}`}
+                    />
+                </MovingBorder>
+            </div>
+            <div
+                className="relative bg-slate-900/[0.8] border border-slate-800 backdrop-blur-xl p-6 rounded-lg"
+                style={{ borderRadius: `calc(${borderRadius} * 0.96)` }}
+            >
+                <h2 className="text-xl font-bold mb-4">{title}</h2>
+                <div>{content}</div>
+            </div>
+        </div>
     );
 };

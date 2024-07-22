@@ -1,7 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select, { components } from 'react-select';
 import tokens from '../../data/token.json';
+import { Button } from '../../components/ui/moving-border';
 
 // Custom styles for react-select
 const customStyles = {
@@ -56,16 +57,18 @@ const CustomSingleValue = (props) => {
 
 // Define the borrowing duration options
 const borrowingDurations = [
-  { value: 7, label: '7 Days' },
-  { value: 14, label: '14 Days' },
-  { value: 30, label: '30 Days' },
+  { value: 10, label: '30 Days' },
+  { value: 30, label: '60 Days' },
+  { value: 50, label: '90 Days' },
 ];
 
 function Borrow() {
   const [selectedToken, setSelectedToken] = useState<{ value: string; label: string; image: string } | null>(null);
   const [amount, setAmount] = useState('');
+  const [collateralAmount, setCollateralAmount] = useState('');
   const [borrowingDuration, setBorrowingDuration] = useState<{ value: number; label: string } | null>(null);
   const [interestRate, setInterestRate] = useState<number | null>(null);
+  const [tvl, setTVL] = useState<number>(1000000); // Example TVL
 
   const tokenOptions = tokens.tokens.map((token) => ({
     value: token.name,
@@ -89,12 +92,46 @@ function Borrow() {
     console.log('Borrowing', amount, 'of', selectedToken, 'for', borrowingDuration);
   };
 
+  useEffect(() => {
+    calculateInterestRate(); // Recalculate on token or duration change
+  }, [selectedToken, borrowingDuration]);
+
   return (
-    <div className="min-h-screen bg-black py-12 pt-36">
+    <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-36">
       <h1 className="text-lg md:text-7xl text-center font-sans font-bold mb-8 text-white">Borrow Tokens</h1>
 
+      {/* Summary Section */}
       <div className="flex justify-center mb-12">
-        <div className="bg-glossy-black p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-md backdrop-blur-sm">
+          <h2 className="text-lg font-bold mb-4 text-white">Summary</h2>
+          <ul className="text-white space-y-4">
+            <li className="flex justify-between">
+              <span>Borrowed Token:</span>
+              <span>{selectedToken?.label || 'None'}</span>
+            </li>
+            <li className="flex justify-between">
+              <span>Borrowed Amount:</span>
+              <span>{amount || '0'}</span>
+            </li>
+            <li className="flex justify-between">
+              <span>Collateral Amount:</span>
+              <span>{collateralAmount || '0'}</span>
+            </li>
+            <li className="flex justify-between">
+              <span>TVL:</span>
+              <span>${tvl.toLocaleString()}</span>
+            </li>
+            <li className="flex justify-between">
+              <span>Days Until Borrowing Ends:</span>
+              <span>{borrowingDuration?.label || 'N/A'}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Borrow Form */}
+      <div className="flex justify-center">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-md backdrop-blur-sm">
           <div className="mb-4">
             <label className="block text-white mb-2">Token</label>
             <Select
@@ -113,6 +150,16 @@ function Borrow() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Amount"
+              className="w-full p-2 bg-black bg-opacity-60 border border-gray-600 rounded text-white"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-white mb-2">Collateral Amount</label>
+            <input
+              type="number"
+              value={collateralAmount}
+              onChange={(e) => setCollateralAmount(e.target.value)}
+              placeholder="Collateral Amount"
               className="w-full p-2 bg-black bg-opacity-60 border border-gray-600 rounded text-white"
             />
           </div>
@@ -138,12 +185,9 @@ function Borrow() {
               <p>Estimated Interest Rate: {interestRate.toFixed(2)}%</p>
             </div>
           )}
-          <button
-            onClick={handleBorrow}
-            className="w-full py-2 bg-green-500 rounded-xl text-white font-bold"
-          >
+          <Button onClick={handleBorrow}>
             Confirm Borrow
-          </button>
+          </Button>
         </div>
       </div>
     </div>

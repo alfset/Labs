@@ -1,16 +1,12 @@
 import { ethers } from 'ethers';
 
-// Function to connect to MetaMask
 export const connectMetaMask = async () => {
   if (typeof window !== 'undefined' && (window as any).ethereum) {
-    // Create a Web3Provider instance for MetaMask
     const provider = new ethers.BrowserProvider((window as any).ethereum);
 
     try {
-      // Request accounts from MetaMask
       await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
       const signer = await provider.getSigner();
-     // console.log(signer)
       const address = await signer.getAddress();
       console.log(address);
       return address;
@@ -21,5 +17,20 @@ export const connectMetaMask = async () => {
   } else {
     console.error('MetaMask is not installed.');
     return null;
+  }
+};
+
+export const switchChain = async () => {
+  if (window.ethereum) {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x1' }], // Example chain ID (Ethereum Mainnet)
+      });
+    } catch (error) {
+      console.error("Error switching chains:", error);
+    }
+  } else {
+    console.error("Ethereum provider is not available.");
   }
 };

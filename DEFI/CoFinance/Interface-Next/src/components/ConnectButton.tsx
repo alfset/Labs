@@ -1,7 +1,9 @@
+// pages/ConnectButton.tsx
 'use client'; // Ensure this file is treated as a client component
 
 import React from 'react';
 import { Button } from '../components/ui/moving-border';
+import ChainSwitchButton from './SwitchChain'; // Update path as necessary
 import { connectMetaMask } from '../utils/wallet'; // Update path as necessary
 
 interface ConnectButtonProps {
@@ -36,11 +38,12 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) =>
   };
 
   return (
-    <Button
-      onClick={connected ? handleDisconnectWallet : handleConnectMetaMask}
-    >
-      {connected ? `${account?.substring(0, 6)}...${account?.substring(account.length - 4)}` : 'Connect Wallet'}
-    </Button>
+    <div className="flex items-center">
+      <ChainSwitchButton />
+      <Button onClick={connected ? handleDisconnectWallet : handleConnectMetaMask}>
+        {connected ? `${account?.substring(0, 6)}...${account?.substring(account.length - 4)}` : 'Connect Wallet'}
+      </Button>
+    </div>
   );
 };
 

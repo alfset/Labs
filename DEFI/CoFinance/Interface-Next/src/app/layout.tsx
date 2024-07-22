@@ -21,10 +21,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <div className="relative w-full flex flex-col min-h-screen">
           <Navbar />
-          <div className="fixed top-10 right-4 z-50"> {/* Positioning matches Navbar */}
+          <div className="fixed top-10 right-4 z-50"> 
             <ConnectWalletButton />
           </div>
-          <main className="flex-grow pt-20"> {/* Ensure main content doesn't overlap with fixed Navbar */}
+          <main className="flex-grow pt-20"> 
             {children}
           </main>
         </div>

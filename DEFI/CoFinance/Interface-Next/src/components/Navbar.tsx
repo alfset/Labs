@@ -39,16 +39,20 @@ const Navbar = ({ className }: { className?: string }) => {
             <Menu setActive={setActive}>
                 <Link href={"/"}>
                     <MenuItem setActive={setActive} active={active} item="Home">
-                        {/* Home */}
                     </MenuItem>
                 </Link>
-                <MenuItem setActive={setActive} active={active} item="Explore">
+                <Link href={"/swap"}>
+                    <MenuItem setActive={setActive} active={active} item="swap">
+                    </MenuItem>
+                </Link>
+                <Link href={"/borrow"}>
+                    <MenuItem setActive={setActive} active={active} item="Borrow">
+                    </MenuItem>
+                </Link>
+                <MenuItem setActive={setActive} active={active} item="Earn">
                     <div className="flex flex-col space-y-4 text-sm">
-                        <HoveredLink href="/swap">Apps</HoveredLink>
                         <HoveredLink href="/pools">Staking</HoveredLink>
                         <HoveredLink href="/borrow">Pool</HoveredLink>
-                        <HoveredLink href="/staking">Lending And Borrowing</HoveredLink>
-                        <HoveredLink href="/portofolio">Oracle Service</HoveredLink>
                     </div>
                 </MenuItem>
             </Menu>
