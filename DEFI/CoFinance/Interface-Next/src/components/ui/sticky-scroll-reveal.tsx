@@ -1,7 +1,8 @@
-"use client";
+'use client';
 import React, { useRef } from "react";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { motion } from "framer-motion";
+import Image from 'next/image';
 
 export const StickyScroll = ({
     content,
@@ -9,6 +10,7 @@ export const StickyScroll = ({
     content: {
         title: string;
         description: string;
+        image: string;
     }[];
 }) => {
     const [activeCard, setActiveCard] = React.useState(0);
@@ -33,11 +35,7 @@ export const StickyScroll = ({
         "var(--black)",
         "var(--neutral-900)",
     ];
-    const linearGradients = [
-        "linear-gradient(to bottom right, var(--cyan-500), var(--emerald-500))",
-        "linear-gradient(to bottom right, var(--pink-500), var(--indigo-500))",
-        "linear-gradient(to bottom right, var(--orange-500), var(--yellow-500))",
-    ];
+
     return (
         <motion.div
             animate={{
@@ -46,7 +44,7 @@ export const StickyScroll = ({
             className="h-[30rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md p-10"
             ref={ref}
         >
-            <div className="div relative flex items-start px-4">
+            <div className="relative flex items-start px-4">
                 <div className="max-w-2xl">
                     {content.map((item, index) => (
                         <div key={item.title + index} className="my-20">
@@ -72,6 +70,16 @@ export const StickyScroll = ({
                             >
                                 {item.description}
                             </motion.p>
+                            <motion.div
+                                initial={{
+                                    opacity: 0,
+                                }}
+                                animate={{
+                                    opacity: activeCard === index ? 1 : 0.3,
+                                }}
+                                className="mt-10"
+                            >
+                            </motion.div>
                         </div>
                     ))}
                     <div className="h-40" />
@@ -79,9 +87,11 @@ export const StickyScroll = ({
             </div>
             <motion.div
                 animate={{
-                    background: linearGradients[activeCard % linearGradients.length],
+                    backgroundImage: `url(${content[activeCard].image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
                 }}
-                className="hidden lg:block h-60 w-80 rounded-md bg-white sticky top-10 overflow-hidden"
+                className="hidden lg:block h-48 w-48 rounded-full bg-white sticky top-10 overflow-hidden shadow-lg"
             ></motion.div>
         </motion.div>
     );

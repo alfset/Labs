@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React from "react";
 import { InfiniteMovingCards } from "./ui/infinite-moving-cards";
 
@@ -42,7 +42,7 @@ function PromotionBanner() {
                         speed="slow"
                         pauseOnHover={true}
                         renderItem={({ image, altText }) => (
-                            <div className="flex flex-col items-center justify-center p-4 bg-glassy backdrop-filter backdrop-blur-md rounded-lg shadow-lg mx-2">
+                            <div className="flex flex-col items-center justify-center p-4 bg-glassy backdrop-filter backdrop-blur-md rounded-lg shadow-lg mx-2 animate-border-pulse border-2 border-transparent">
                                 <img
                                     src={image}
                                     alt={altText}
