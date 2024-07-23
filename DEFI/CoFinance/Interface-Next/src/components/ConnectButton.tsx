@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
-import { Button } from '../components/ui/moving-border'; // Adjust this import based on your project structure
-import ChainSwitchButton from './SwitchChain';
-import { connectMetaMask } from '../utils/wallet';
+import React, { useState, useEffect } from 'react';
+import { Button } from '../components/ui/moving-border';
+import ChainSwitchButton from './SwitchChain'; // Update path as necessary
+import { connectMetaMask } from '../utils/wallet'; // Update path as necessary
 
 interface ConnectButtonProps {
   account: string | null;
@@ -12,10 +12,31 @@ interface ConnectButtonProps {
 
 const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) => {
   const [connected, setConnected] = React.useState<boolean>(!!account);
+  const [visible, setVisible] = useState(true);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
 
   React.useEffect(() => {
     setConnected(!!account);
   }, [account]);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+
+      if (scrollTop > lastScrollTop) {
+        // Scrolling down
+        setVisible(false);
+      } else {
+        // Scrolling up
+        setVisible(true);
+      }
+
+      setLastScrollTop(scrollTop <= 0 ? 0 : scrollTop);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollTop]);
 
   const handleConnectMetaMask = async () => {
     try {
@@ -38,11 +59,17 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) =>
   };
 
   return (
-    <div className="flex items-center">
-      <ChainSwitchButton />
-      <Button onClick={connected ? handleDisconnectWallet : handleConnectMetaMask}>
-        {connected ? `${account?.substring(0, 6)}...${account?.substring(account.length - 4)}` : 'Connect Wallet'}
-      </Button>
+    <div
+      className={`fixed top-10 right-4 z-50 transition-transform ${
+        visible ? 'translate-y-0' : '-translate-y-full'
+      }`}
+    >
+      <div className="flex items-center space-x-4">
+        <ChainSwitchButton />
+        <Button onClick={connected ? handleDisconnectWallet : handleConnectMetaMask}>
+          {connected ? `${account?.substring(0, 6)}...${account?.substring(account.length - 4)}` : 'Connect Wallet'}
+        </Button>
+      </div>
     </div>
   );
 };
