@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import React from "react";
 import "./globals.css";
-import RootLayout from "./RootLayout";
+import ClientWrapper from "./rootLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +22,7 @@ export default function ServerLayout({
     <html lang="en" className="dark">
       <body className={inter.className}>
         <Navbar />
-        <RootLayout>{children}</RootLayout>
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   );
