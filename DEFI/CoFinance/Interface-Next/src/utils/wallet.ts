@@ -1,36 +1,37 @@
-import { ethers } from 'ethers';
-
-export const connectMetaMask = async () => {
-  if (typeof window !== 'undefined' && (window as any).ethereum) {
-    const provider = new ethers.BrowserProvider((window as any).ethereum);
-
+export const connectMetaMask = async (): Promise<string | null> => {
+  if (typeof window.ethereum !== 'undefined') {
     try {
-      await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-      console.log(address);
-      return address;
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      return accounts[0] || null;
     } catch (error) {
-      console.error('Error connecting to MetaMask:', error);
-      return null;
+      console.error('User rejected the request:', error);
+      throw new Error('User rejected the request');
     }
   } else {
-    console.error('MetaMask is not installed.');
-    return null;
+    console.error('MetaMask is not installed');
+    throw new Error('MetaMask is not installed');
   }
 };
 
-export const switchChain = async () => {
-  if (window.ethereum) {
+// Switches to a specified Ethereum network chain ID
+export const switchChain = async (chainId: string): Promise<void> => {
+  if (typeof window.ethereum !== 'undefined') {
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x1' }], // Example chain ID (Ethereum Mainnet)
+        params: [{ chainId }],
       });
     } catch (error) {
-      console.error("Error switching chains:", error);
+      // Handle errors such as user rejecting the switch or the chain not being available
+      if (error.code === 4902) {
+        console.error('Chain not found. Please add the chain to MetaMask.');
+      } else {
+        console.error("Error switching chains:", error);
+      }
     }
   } else {
-    console.error("Ethereum provider is not available.");
+    console.error("MetaMask is not installed.");
+    throw new Error("MetaMask is not installed.");
   }
 };
+

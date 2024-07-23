@@ -1,10 +1,9 @@
-// pages/ConnectButton.tsx
-'use client'; // Ensure this file is treated as a client component
+'use client';
 
 import React from 'react';
-import { Button } from '../components/ui/moving-border';
-import ChainSwitchButton from './SwitchChain'; // Update path as necessary
-import { connectMetaMask } from '../utils/wallet'; // Update path as necessary
+import { Button } from '../components/ui/moving-border'; // Adjust this import based on your project structure
+import ChainSwitchButton from './SwitchChain';
+import { connectMetaMask } from '../utils/wallet';
 
 interface ConnectButtonProps {
   account: string | null;
@@ -22,6 +21,7 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) =>
     try {
       const address = await connectMetaMask();
       if (address) {
+        console.log(address);
         setAccount(address);
         setConnected(true);
       } else {
