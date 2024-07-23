@@ -1,26 +1,29 @@
-import React from "react";
-import { Button } from "@chakra-ui/react";
-import { ethers } from "ethers";
+'use client';
+import React from 'react';
+import { ethers } from 'ethers';
+import AccountModal from './AccountModal';
+import { Button } from '../components/ui/moving-border';
 
 interface ConnectButtonProps {
   account: string | null;
   setAccount: React.Dispatch<React.SetStateAction<string | null>>;
-  onConnect: () => void;  // Added prop to notify parent about connection
 }
 
-const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount, onConnect }) => {
+const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) => {
   const [connected, setConnected] = React.useState<boolean>(!!account);
+  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
 
   const handleConnectWallet = async () => {
     try {
       if ((window as any).ethereum) {
-        const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
-        const address = await signer.getAddress();
+        const address = await (await signer).getAddress();
+        console.log(address);
         setAccount(address);
+        console.log(setAccount)
         setConnected(true);
-        onConnect();  // Notify parent about successful connection
       } else {
         console.error("No Ethereum provider detected");
       }
@@ -35,12 +38,13 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount, onCo
   };
 
   return (
-    <Button
-      colorScheme="teal"
-      onClick={connected ? handleDisconnectWallet : handleConnectWallet}
-    >
-      {connected ? `Disconnect` : `Connect Wallet`}
-    </Button>
+    <>
+      <Button
+        onClick={connected ? handleDisconnectWallet : handleConnectWallet}
+      >
+        {connected ? `Connected: ${account?.slice(0, 6)}...${account?.slice(-4)}` : `Connect Wallet`}
+      </Button>
+    </>
   );
 };
 

@@ -1,8 +1,9 @@
-import React from "react";
-import { Box, Button, Flex, Link, Text } from "@chakra-ui/react";
-import { ExternalLinkIcon, CopyIcon } from "@chakra-ui/icons";
-import Identicon from "./Identicon";
-import { ethers } from "ethers";
+'use client';
+import React from 'react';
+import { Box, Button, Flex, Link, Text } from '@chakra-ui/react';
+import { ExternalLinkIcon, CopyIcon } from '@chakra-ui/icons';
+import Identicon from './Identicon'; // Assuming Identicon component exists
+import { ethers } from 'ethers';
 
 type AccountModalProps = {
   isOpen: boolean;
