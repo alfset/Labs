@@ -142,7 +142,10 @@ function Staking() {
                 ))}
               </div>
             </div>
-            <Button onClick={handleStakePool}>Stake Pool</Button>
+            <Button 
+            onClick={handleStakePool}
+            className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
+            >Stake Pool</Button>
             {aprPool && <p className="text-white mt-4">Estimated APR: {aprPool}%</p>}
           </div>
         </div>

@@ -91,7 +91,7 @@ export const StickyScroll = ({
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                 }}
-                className="hidden lg:block h-48 w-48 rounded-full bg-white sticky top-10 overflow-hidden shadow-lg"
+                className="hidden lg:block h-48 w-48 rounded-full sticky top-10 overflow-hidden shadow-lg"
             ></motion.div>
         </motion.div>
     );

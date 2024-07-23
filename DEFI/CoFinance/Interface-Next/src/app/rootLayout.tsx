@@ -1,4 +1,4 @@
-'use client'; // Ensure this is treated as a client component
+'use client';
 
 import React, { useState } from 'react';
 import ConnectButton from '../components/ConnectButton';

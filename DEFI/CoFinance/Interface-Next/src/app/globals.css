@@ -34,6 +34,20 @@ body {
   padding: 20px; /* Adjust padding as needed */
 }
 
+.card-container {
+  perspective: 1000px; /* Adjust perspective as needed */
+}
+
+.card {
+  transition: transform 0.5s, box-shadow 0.5s;
+  transform-style: preserve-3d;
+}
+
+.card:hover {
+  transform: rotateY(10deg) rotateX(10deg); /* Adjust rotation for 3D effect */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Adjust shadow */
+}
+
 
 @layer utilities {
   .text-balance {
