@@ -126,6 +126,8 @@ function Swap() {
           </div>
           <Button
             onClick={handleSwap}
+            className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
+
           >
             Confirm Swap
           </Button>

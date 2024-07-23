@@ -1,0 +1,29 @@
+{
+  "tokens": [
+    {
+      "name": "oraichain",
+      "operator_address": "swtrvaloper",
+      "moniker": "comunitynode"
+    },
+    {
+      "name": "swisstronik",
+      "operator_address": "swtrvaloper12tl87x8jkp26d23c2sqxyqm0sja3pywk36q9j2",
+      "moniker": "comunitynode"
+    },
+    {
+      "name": "Osmosis",
+      "operator_address": "osmovaloper13nhwn8dtu0l0erryhcmwwqxh6m43d02y2xrxhf",
+      "moniker": "chorus-one"
+    },
+    {
+      "name": "planq",
+      "operator_address": "73tqzrc5ag9w79jvjvr6u",
+      "moniker": "comunitynode"
+    },
+    {
+      "name": "crossfinance",
+      "operator_address": "swtrvaloper1qvu",
+      "moniker": "comunitynode"
+    }    
+  ]
+}
