@@ -1,25 +1,21 @@
 // components/ChainSwitchButton.tsx
-'use client';
-
 import React, { useState } from 'react';
 import { Button } from '../components/ui/moving-border';
 import { switchChain } from '../utils/wallet'; 
 
-// Define the chain options
+// Define the chain options, including Solana clusters
 const chains = [
   { value: '0x1', label: 'Ethereum' }, 
-  { value: '0x1a', label: 'Swisstronik' },
-  { value: '0x3', label: 'Cardano' },
-  { value: '0x4', label: 'Solana' }, 
-  { value: '0x5', label: 'BSC' }, 
-  { value: '0x6', label: 'Planq' }, 
-  { value: '0x7', label: 'Orichain' },
-  { value: '0x8', label: 'Scroll' },
-  { value: '0x9', label: 'Base' },
-  { value: '0x10', label: 'Cross Finance' },
-  { value: '0x11', label: 'Polygon' },
-
-
+  { value: '0x50b', label: 'Swisstronik' },
+  { value: '0x38', label: 'BSC' }, 
+  { value: '0x1b9e', label: 'Planq' }, 
+  { value: '0x67266a7', label: 'Orichain' },
+  { value: '0x8274f', label: 'Scroll' },
+  { value: '0x2105', label: 'Base' },
+  { value: '0x103d', label: 'Cross Finance' },
+  { value: '0x89', label: 'Polygon' },
+  { value: '-', label: 'Cardano (Soon)' },
+  { value: '-', label: 'Solana (Soon)' },
 ];
 
 const ChainSwitchButton: React.FC = () => {
@@ -28,10 +24,16 @@ const ChainSwitchButton: React.FC = () => {
 
   const handleSwitchChain = async (chainId: string) => {
     try {
-      await switchChain(chainId);
-      setSelectedChain(chainId);
-      setMenuOpen(false); // Close the menu after switching
-      console.log(`Switched to chain ID: ${chainId}`);
+      if (chainId.startsWith('solana')) {
+        console.log(`Selected ${chainId}, switching Solana cluster.`);
+        setSelectedChain(chainId);
+        setMenuOpen(false); 
+      } else {
+        await switchChain(chainId);
+        setSelectedChain(chainId);
+        setMenuOpen(false);
+        console.log(`Switched to chain ID: ${chainId}`);
+      }
     } catch (err) {
       console.error("Failed to switch chain:", err);
     }

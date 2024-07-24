@@ -41,22 +41,23 @@ const Navbar = ({ className }: { className?: string }) => {
                     <MenuItem setActive={setActive} active={active} item="Home">
                     </MenuItem>
                 </Link>
-                <Link href={"/swap"}>
-                    <MenuItem setActive={setActive} active={active} item="swap">
+                <Link href={"/portofolio"}>
+                    <MenuItem setActive={setActive} active={active} item="Portofolio">
                     </MenuItem>
                 </Link>
                 <Link href={"/borrow"}>
                     <MenuItem setActive={setActive} active={active} item="Borrow">
                     </MenuItem>
                 </Link>
-                <Link href={"/portofolio"}>
-                    <MenuItem setActive={setActive} active={active} item="Portofolio">
+                <Link href={"/swap"}>
+                    <MenuItem setActive={setActive} active={active} item="Trade">
                     </MenuItem>
                 </Link>
                 <MenuItem setActive={setActive} active={active} item="Earn">
                     <div className="flex flex-col space-y-4 text-sm">
-                        <HoveredLink href="/staking">Staking</HoveredLink>
+                        <HoveredLink href="/staking">Staking Pools</HoveredLink>
                         <HoveredLink href="/pool">Pool</HoveredLink>
+                        <HoveredLink href="/tokenstake">Token Staking</HoveredLink>
                     </div>
                 </MenuItem>
             </Menu>

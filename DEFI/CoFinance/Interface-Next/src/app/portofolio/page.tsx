@@ -7,19 +7,19 @@ import tokens from '../../data/token.json';
 const pools = [
   {
     id: '1',
-    tokenA: 'Token A',
-    tokenB: 'Token B',
+    tokenA: 'planq',
+    tokenB: 'swisstronik',
     liquidity: '1000',
     imageA: '/planq.jpg',
-    imageB: '/planq.jpg'
+    imageB: '/tokens/swisstronik.png'
   },
   {
     id: '2',
-    tokenA: 'Token C',
-    tokenB: 'Token D',
+    tokenA: 'bitcoin',
+    tokenB: 'oraichain',
     liquidity: '500',
-    imageA: '/planq.jpg',
-    imageB: '/planq.jpg'
+    imageA: '/tokens/bitcoin.png',
+    imageB: '/tokens/orai.jpg'
   },
   // Add more pools as needed
 ];
@@ -28,21 +28,21 @@ const pools = [
 const tokenHolders = [
   {
     id: '1',
-    name: 'Holder One',
+    name: 'planq',
     tokens: '2000',
-    image: '/holder1.jpg', // Add the image path
+    image: '/tokens/planq.jpg', // Add the image path
   },
   {
     id: '2',
-    name: 'Holder Two',
+    name: 'oraichain',
     tokens: '1500',
-    image: '/holder2.jpg', // Add the image path
+    image: '/tokens/orai.jpg', // Add the image path
   },
   {
     id: '3',
-    name: 'Holder Three',
+    name: 'bitocin',
     tokens: '3000',
-    image: '/holder3.jpg', // Add the image path
+    image: '/tokens/bitcoin.png', // Add the image path
   },
   // Add more holders as needed
 ];
@@ -51,15 +51,15 @@ const tokenHolders = [
 const stakingTokens = [
   {
     id: '1',
-    tokenName: 'Staked Token A',
+    tokenName: 'planq',
     amount: '500',
-    image: '/staking-token-a.jpg', // Add the image path
+    image: '/tokens/planq.jpg', // Add the image path
   },
   {
     id: '2',
-    tokenName: 'Staked Token B',
+    tokenName: 'swisstronik',
     amount: '300',
-    image: '/staking-token-b.jpg', // Add the image path
+    image: '/tokens/swisstronik.png', // Add the image path
   },
   // Add more staking tokens as needed
 ];
@@ -81,7 +81,6 @@ function Portofolio() {
           Portfolio Overview
         </h1>
         <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black rounded-lg shadow-lg w-full max-w-4xl mx-auto backdrop-blur-sm">
-          <h2 className="text-2xl font-semibold text-white mb-4">Portfolio Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-4 rounded-lg shadow-md backdrop-blur-sm">
               <h3 className="text-xl font-semibold text-white mb-2">Total Assets</h3>
@@ -124,7 +123,7 @@ function Portofolio() {
                     </div>
                   </div>
                   <div className="space-y-2 text-right">
-                    <p className="text-white">Liquidity: {pool.liquidity} tokens</p>
+                    <p className="text-white">Liquidity: {pool.liquidity} $</p>
                   </div>
                 </li>
               ))}
@@ -148,7 +147,7 @@ function Portofolio() {
                     <span className="text-white font-bold">{holder.name}</span>
                   </div>
                   <div className="space-y-2 text-right">
-                    <p className="text-white">Tokens: {holder.tokens}</p>
+                    <p className="text-white">Ammount: {holder.tokens}</p>
                   </div>
                 </li>
               ))}
