@@ -1,18 +1,20 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '../../components/ui/moving-border';
 import { SigningStargateClient } from '@cosmjs/stargate';
-import validatorsData from '../../data/validator.json'; // Adjust the path to where your validators.json is located
+import validatorsData from '../../data/validator.json'; 
+import axios from 'axios';
 
 interface Validator {
   operator_address: string;
   moniker: string;
   tokens?: string;
-  network?: string; // Add network to the Validator interface
+  network?: string; 
 }
 
 function TokenStake() {
   const [walletConnected, setWalletConnected] = useState(false);
+  const [showConnectButton, setShowConnectButton] = useState(true); 
   const [client, setClient] = useState<SigningStargateClient | null>(null);
   const [account, setAccount] = useState<any>(null);
   const [validators, setValidators] = useState<Validator[]>(validatorsData.tokens); 
@@ -20,8 +22,14 @@ function TokenStake() {
   const [balance, setBalance] = useState<string | null>(null);
   const [selectedValidator, setSelectedValidator] = useState<Validator | null>(null);
   const [stakeAmount, setStakeAmount] = useState<string>('');
-  const [showPopup, setShowPopup] = useState(false); // State for handling pop-up visibility
-  const [txHash, setTxHash] = useState<string | null>(null); // State for handling transaction hash
+  const [unstakeAmount, setUnstakeAmount] = useState<string>(''); 
+  const [showPopup, setShowPopup] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+
+  const [stakedAmount, setStakedAmount] = useState<string | null>(null);
+  const [stakedValidator, setStakedValidator] = useState<Validator | null>(null);
+
+  const popupRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -34,8 +42,82 @@ function TokenStake() {
         }
       }
     };
+
+    const fetchStakingInfo = async () => {
+      if (account) {
+        try {
+          const response = await axios.get(`https://lcd.testnet.osmosis.zone/cosmos/staking/v1beta1/delegations/${account.address}`);
+          const data = response.data;
+          
+          if (data.delegation_responses && data.delegation_responses.length > 0) {
+            const delegation = data.delegation_responses[0].delegation;
+            const validatorAddress = delegation.validator_address;
+            const amount = data.delegation_responses[0].balance.amount;
+            const validator = validators.find(v => v.operator_address === validatorAddress);
+            
+            setStakedValidator(validator || null);
+            setStakedAmount(amount ? amount : '0');
+          } else {
+            setStakedAmount('0');
+            setStakedValidator(null);
+          }
+        } catch (err) {
+          setError(`Failed to fetch staking info: ${err.message}`);
+        }
+      }
+    };
+
     fetchBalance();
+    fetchStakingInfo();
+    fetchRewards();
   }, [client, account]);
+
+  const fetchRewards = async (account: any) => {
+    if (!account) return;
+  
+    try {
+      const response = await axios.get(`https://lcd.testnet.osmosis.zone/cosmos/distribution/v1beta1/delegators/${account.address}/rewards`);
+      const data = response.data;
+        if (data.rewards && data.rewards.length > 0) {
+        let totalReward = 0;
+          for (const reward of data.rewards) {
+          totalReward += reward.reward.reduce((acc: number, curr: any) => acc + parseFloat(curr.amount), 0);
+        }
+          const validatorAddress = data.rewards[0].validator_address;
+        const validator = validators.find(v => v.operator_address === validatorAddress);
+  
+        setStakedValidator(validator || null);
+        setReward(totalReward.toString());
+      } else {
+        setReward('0');
+        setStakedValidator(null);
+      }
+    } catch (error) {
+      setError(`Failed to fetch rewards: ${error.message}`);
+    }
+  };
+  const [reward, setReward] = useState<string | null>(null);
+
+  
+  
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        setShowPopup(false);
+      }
+    };
+
+    if (showPopup) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPopup]);
 
   const connectWallet = async () => {
     if (!window.getOfflineSigner || !window.getOfflineSigner("osmo-test-5")) {
@@ -55,12 +137,27 @@ function TokenStake() {
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         setWalletConnected(true);
+        setShowConnectButton(false); 
       } else {
         setError("No accounts found");
       }
     } catch (err) {
       setError(`Failed to connect wallet: ${err.message}`);
     }
+  };
+
+  const disconnectWallet = () => {
+    setClient(null);
+    setAccount(null);
+    setWalletConnected(false);
+    setShowConnectButton(true); 
+  };
+
+  const truncateHash = (hash: string, length: number = 10) => {
+    if (hash.length <= length * 2) {
+      return hash;
+    }
+    return `${hash.slice(0, length)}...${hash.slice(-length)}`;
   };
 
   const handleStake = async () => {
@@ -72,7 +169,7 @@ function TokenStake() {
         setError("Invalid stake amount");
         return;
       }
-      const fee = { amount: [{ denom: 'uosmo', amount: '3000' }], gas: '300000' }; // Example fee
+      const fee = { amount: [{ denom: 'uosmo', amount: '3000' }], gas: '300000' }; 
       const stakingAmount = [{ denom: 'uosmo', amount: amountToStake.toString() }];
       const tx = await client.signAndBroadcast(
         account.address,
@@ -101,24 +198,102 @@ function TokenStake() {
       setTxHash(null);
     }
   };
-  
+
+  const handleUnstake = async () => {
+    if (!client || !account || !stakedValidator) return;
+
+    try {
+      const amountToUnstake = parseFloat(unstakeAmount);
+      if (isNaN(amountToUnstake) || amountToUnstake <= 0) {
+        setError("Invalid unstake amount");
+        return;
+      }
+      const fee = { amount: [{ denom: 'uosmo', amount: '3000' }], gas: '300000' };
+      const stakingAmount = [{ denom: 'uosmo', amount: amountToUnstake.toString() }];
+      const tx = await client.signAndBroadcast(
+        account.address,
+        [
+          {
+            typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
+            value: {
+              delegatorAddress: account.address,
+              validatorAddress: stakedValidator.operator_address,
+              amount: stakingAmount[0],
+            },
+          },
+        ],
+        fee,
+        ''
+      );
+      if (tx.code !== 0) {
+        setError(`Transaction failed: ${tx.log || tx.rawLog}`);
+        setTxHash(null);
+      } else {
+        setTxHash(tx.transactionHash || 'Transaction hash not available');
+        setShowPopup(false);
+      }
+    } catch (err) {
+      setError(`Failed to unstake tokens: ${err.message}`);
+      setTxHash(null);
+    }
+  };
+
+  const handleClaimRewards = async () => {
+    if (!client || !account) return;
+
+    try {
+      const fee = { amount: [{ denom: 'uosmo', amount: '3000' }], gas: '300000' }; 
+      const tx = await client.signAndBroadcast(
+        account.address,
+        [
+          {
+            typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+            value: {
+              delegatorAddress: account.address,
+              validatorAddress: stakedValidator?.operator_address || '',
+            },
+          },
+        ],
+        fee,
+        ''
+      );
+      if (tx.code !== 0) {
+        setError(`Transaction failed: ${tx.log || tx.rawLog}`);
+        setTxHash(null);
+      } else {
+        setTxHash(tx.transactionHash || 'Transaction hash not available');
+      }
+    } catch (err) {
+      setError(`Failed to claim rewards: ${err.message}`);
+      setTxHash(null);
+    }
+  };
 
   const handleSelectValidator = (validator: Validator) => {
     setSelectedValidator(validator);
     setStakeAmount('');
+    setUnstakeAmount('');
     setShowPopup(true); 
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-24">
       {/* Wallet Connection */}
-      <div className="text-center mb-12">
-        <Button
-          onClick={connectWallet}
-          className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
-        >
-          {walletConnected ? `Connected` : 'Connect Keplr Wallet'}
-        </Button>
+      <div className="fixed top-10 right-4 z-50">
+        {showConnectButton && (
+          <Button
+            onClick={connectWallet}
+          >
+            Connect Keplr Wallet
+          </Button>
+        )}
+        {walletConnected && (
+          <Button
+            onClick={disconnectWallet}
+          >
+            Disconnect Wallet
+          </Button>
+        )}
         {error && <p className="text-red-500 mt-4">{error}</p>}
       </div>
 
@@ -128,90 +303,90 @@ function TokenStake() {
           <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-6 rounded-lg shadow-lg w-full max-w-6xl backdrop-blur-sm">
             <h2 className="text-2xl font-semibold text-white mb-4">Account Details</h2>
             <div className="space-y-4">
-              <p className="text-white font-bold">Address: {account.address}</p>
-              <p className="text-white font-bold">Balance: {balance ? `${balance} osmo` : 'Loading...'}</p>
+              <p className="text-gray-300">Address: {account.address}</p>
+              <p className="text-gray-300">Balance: {balance} uosmo</p>
+              <p className="text-gray-300">Staked Amount: {stakedAmount} osmo</p>
+              <p className="text-gray-300">Reward Staking: {reward} osmo</p>
+              <p className="text-gray-300">Staked Validator: {stakedValidator ? stakedValidator.moniker : 'None'}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Validators Section */}
-      <div className="flex justify-center mb-12">
+      {/* Validator List */}
+      <div className="flex flex-col items-center mb-12">
+        <h2 className="text-2xl font-semibold text-white mb-4">Validators</h2>
         <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-6 rounded-lg shadow-lg w-full max-w-6xl backdrop-blur-sm">
-          <h2 className="text-2xl font-semibold text-white mb-4">Validators</h2>
-          {validators.length === 0 ? (
-            <p className="text-white text-center">No validators available</p>
-          ) : (
-            <ul className="space-y-4">
-              {validators.map((validator) => (
-                <li
-                  key={validator.operator_address}
-                  className="p-6 rounded-lg border border-gray-600 bg-gray-700 hover:bg-gray-600 transition duration-300 ease-in-out flex items-center justify-between"
+          <ul className="space-y-4">
+            {validators.map((validator) => (
+              <li key={validator.operator_address} className="flex justify-between items-center p-4 border border-gray-600 rounded-lg">
+                <span className="text-white">{validator.moniker}</span>
+                <span className="text-white"> network: {validator.name}</span>
+                <span className="text-white"> Estimated APR: {validator.APR}</span>
+                <span className="text-white"> Fee: {validator.fee}</span>
+                <Button
+                  onClick={() => handleSelectValidator(validator)}
                 >
-                  <div className="flex items-center space-x-4">
-                    <span className="text-white font-bold">{validator.moniker || 'Unknown Validator'}</span>
-                    <span className="text-gray-400">({validator.name || 'Unknown Network'})</span>
-                  </div>
-                  <div className="space-y-2 text-right flex items-center">
-                    <Button
-                      onClick={() => handleSelectValidator(validator)}
-                      className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
-
-                    >
-                      Select
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                  Manage
+                </Button>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-
-      {/* Stake Section */}
-      {showPopup && selectedValidator && (
-        <div className="fixed top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-6 rounded-lg shadow-lg w-80">
-          <h2 className="text-2xl font-semibold text-white mb-4">Stake Tokens</h2>
-          <p className="text-white mb-4">Selected Validator: {selectedValidator.moniker || 'Unknown Validator'}</p>
-          <p className="text-gray-400 mb-4">Network: {selectedValidator.name || 'Unknown Network'}</p>
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Amount to Stake"
-              value={stakeAmount}
-              onChange={(e) => setStakeAmount(e.target.value)}
-              className="p-2 rounded-lg border text-black border-gray-600 w-full"
-            />
-            <Button
-              onClick={handleStake}
-              className="bg-blue-500 text-black px-4 py-2 rounded-lg"
-            >
-              Stake
-            </Button>
-            <Button
-              onClick={() => setShowPopup(false)}
-              className="bg-red-500 text-black px-4 py-2 rounded-lg"
-            >
-              Cancel
-            </Button>
+      {showPopup && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div
+      ref={popupRef}
+      className="bg-gradient-to-r from-gray-800 via-gray-900 to-black border border-gray-600 p-6 rounded-lg shadow-lg max-w-md mx-4 w-full backdrop-blur-sm"
+    >
+      <h2 className="text-xl font-semibold mb-4 text-white">Manage Staked</h2>
+      {selectedValidator && (
+        <div className="space-y-4">
+          <p className="text-gray-300">Selected Validator: {selectedValidator.moniker}</p>
+          <div className="flex space-x-4">
+            <div className="w-1/2">
+              <label className="block text-gray-300">Stake Amount</label>
+              <input
+                type="text"
+                value={stakeAmount}
+                onChange={(e) => setStakeAmount(e.target.value)}
+                className="mt-1 p-2 border border-gray-500 rounded w-full bg-gray-700 text-white"
+              />
+            </div>
+            <div className="w-1/2">
+              <label className="block text-gray-300">Unstake Amount</label>
+              <input
+                type="text"
+                value={unstakeAmount}
+                onChange={(e) => setUnstakeAmount(e.target.value)}
+                className="mt-1 p-2 border border-gray-500 rounded w-full bg-gray-700 text-white"
+              />
+            </div>
           </div>
+          <div>
+            <Button onClick={handleStake} className="bg-green-600 text-white">Stake</Button>
+            <Button onClick={handleUnstake} className="bg-red-600 text-white">Unstake</Button>
+            <Button onClick={handleClaimRewards} className="bg-yellow-600 text-white">Claim Rewards</Button>
+          </div>
+          {txHash && (
+            <p className="text-green-400 mt-4">
+                Transaction Hash: 
+                <a href={`https://www.mintscan.io/osmosis-testnet/tx/${txHash}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="underline"
+            >
+                {truncateHash(txHash)}
+                </a>
+            </p>
+        )}
         </div>
       )}
+    </div>
+  </div>
+)}
 
-      {/* Transaction Hash Notification */}
-      {txHash && (
-        <div className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg">
-          <p>Transaction successful! Hash:</p>
-          <a 
-            href={`https://www.mintscan.io/osmosis-testnet/tx/${txHash}`} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-blue-200 underline"
-          >
-            {txHash}
-          </a>
-        </div>
-      )}
     </div>
   );
 }

@@ -6,9 +6,9 @@ import Image from 'next/image';
 
 const HeroSection = () => {
     return (
-        <div className="h-auto md:h-[30rem] w-full rounded-md flex flex-col items-center justify-center relative overflow-hidden mx-auto py-10 md:py-0">
+        <div className="h-auto md:h-[40rem] w-full rounded-md flex flex-col items-center justify-center relative overflow-hidden mx-auto py-10 md:py-0">
             <Spotlight
-                className="-top-40 left-0 md:left-60 md:-top-50"
+                className="-top-10 left-0 md:left-60 md:-top-50"
                 fill="white"
             />
             <div className="p-4 relative z-10 w-full text-center">
@@ -17,7 +17,7 @@ const HeroSection = () => {
                         <h1 className="text-4xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
                             CoFinance
                         </h1>
-                        <h2 className="text-4xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 mt-2"> {/* Add margin-top for spacing between headings */}
+                        <h2 className="text-4xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 mt-2"> 
                             Next Gen DeFi Platform
                         </h2>
                     </div>

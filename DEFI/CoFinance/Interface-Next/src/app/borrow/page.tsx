@@ -66,9 +66,12 @@ function Borrow() {
   const [selectedToken, setSelectedToken] = useState<{ value: string; label: string; image: string } | null>(null);
   const [amount, setAmount] = useState('');
   const [collateralAmount, setCollateralAmount] = useState('');
+  const [depositCollateral, setDepositCollateral] = useState(''); // New state for depositing collateral
+  const [selectedDepositToken, setSelectedDepositToken] = useState<{ value: string; label: string; image: string } | null>(null); // New state for deposit token
   const [borrowingDuration, setBorrowingDuration] = useState<{ value: number; label: string } | null>(null);
   const [interestRate, setInterestRate] = useState<number | null>(null);
   const [tvl, setTVL] = useState<number>(1000000); // Example TVL
+  const [depositedCollateral, setDepositedCollateral] = useState<number>(0); // New state to track deposited collateral
 
   const tokenOptions = tokens.tokens.map((token) => ({
     value: token.name,
@@ -92,6 +95,16 @@ function Borrow() {
     console.log('Borrowing', amount, 'of', selectedToken, 'for', borrowingDuration);
   };
 
+  const handleDepositCollateral = () => {
+    if (selectedDepositToken) {
+      setDepositedCollateral(depositedCollateral + parseFloat(depositCollateral));
+      setDepositCollateral(''); // Reset deposit collateral input
+      console.log('Deposited Collateral:', depositCollateral, 'Token:', selectedDepositToken.label);
+    } else {
+      console.log('Please select a token for deposit.');
+    }
+  };
+
   useEffect(() => {
     calculateInterestRate(); // Recalculate on token or duration change
   }, [selectedToken, borrowingDuration]);
@@ -102,37 +115,77 @@ function Borrow() {
 
       {/* Summary Section */}
       <div className="flex justify-center mb-12">
-        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-md backdrop-blur-sm">
-          <h2 className="text-lg font-bold mb-4 text-white">Summary</h2>
-          <ul className="text-white space-y-4">
-            <li className="flex justify-between">
-              <span>Borrowed Token:</span>
-              <span>{selectedToken?.label || 'None'}</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Borrowed Amount:</span>
-              <span>{amount || '0'}</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Collateral Amount:</span>
-              <span>{collateralAmount || '0'}</span>
-            </li>
-            <li className="flex justify-between">
-              <span>TVL:</span>
-              <span>${tvl.toLocaleString()}</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Days Until Borrowing Ends:</span>
-              <span>{borrowingDuration?.label || 'N/A'}</span>
-            </li>
-          </ul>
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-screen-lg flex flex-wrap">
+          <div className="w-full md:w-1/2 p-4">
+            <h2 className="text-lg font-bold mb-4 text-white">Summary</h2>
+            <ul className="text-white space-y-4">
+              <li className="flex justify-between">
+                <span>Borrowed Token:</span>
+                <span>{selectedToken?.label || 'None'}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Borrowed Amount:</span>
+                <span>{amount || '0'}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Collateral Amount:</span>
+                <span>{collateralAmount || '0'}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Deposited Collateral:</span>
+                <span>{depositedCollateral.toFixed(2)}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>TVL:</span>
+                <span>${tvl.toLocaleString()}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Days Until Borrowing Ends:</span>
+                <span>{borrowingDuration?.label || 'N/A'}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center mb-12">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-screen-lg flex flex-wrap">
+          <div className="w-full md:w-1/2 p-4">
+            <label className="block text-white mb-2">Select Token for Collateral</label>
+            <Select
+              options={tokenOptions}
+              value={selectedDepositToken}
+              onChange={setSelectedDepositToken}
+              styles={customStyles}
+              components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
+              placeholder="Select token"
+            />
+          </div>
+          <div className="w-full md:w-1/2 p-4">
+            <label className="block text-white mb-2">Deposit Collateral</label>
+            <input
+              type="number"
+              value={depositCollateral}
+              onChange={(e) => setDepositCollateral(e.target.value)}
+              placeholder="Deposit Collateral"
+              className="w-full p-2 bg-black bg-opacity-60 border border-gray-600 rounded text-white"
+            />
+          </div>
+          <div className="w-full p-4">
+            <Button 
+              onClick={handleDepositCollateral}
+              className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
+            >
+              Deposit Collateral
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Borrow Form */}
-      <div className="flex justify-center">
-        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-md backdrop-blur-sm">
-          <div className="mb-4">
+      <div className="flex justify-center mb-12">
+        <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-screen-lg flex flex-wrap">
+          <div className="w-full md:w-1/2 p-4">
             <label className="block text-white mb-2">Token</label>
             <Select
               options={tokenOptions}
@@ -143,7 +196,7 @@ function Borrow() {
               placeholder="Select token"
             />
           </div>
-          <div className="mb-4">
+          <div className="w-full md:w-1/2 p-4">
             <label className="block text-white mb-2">Amount</label>
             <input
               type="number"
@@ -153,44 +206,24 @@ function Borrow() {
               className="w-full p-2 bg-black bg-opacity-60 border border-gray-600 rounded text-white"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-white mb-2">Collateral Amount</label>
-            <input
-              type="number"
-              value={collateralAmount}
-              onChange={(e) => setCollateralAmount(e.target.value)}
-              placeholder="Collateral Amount"
-              className="w-full p-2 bg-black bg-opacity-60 border border-gray-600 rounded text-white"
+          <div className="w-full md:w-1/2 p-4">
+            <label className="block text-white mb-2">Borrowing Duration</label>
+            <Select
+              options={borrowingDurations}
+              value={borrowingDuration}
+              onChange={setBorrowingDuration}
+              styles={customStyles}
+              placeholder="Select duration"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-white mb-2">Borrowing Duration</label>
-            <div className="grid grid-cols-3 gap-4">
-              {borrowingDurations.map((duration) => (
-                <button
-                  key={duration.value}
-                  onClick={() => {
-                    setBorrowingDuration(duration);
-                    calculateInterestRate(); // Recalculate Interest Rate on selection
-                  }}
-                  className={`p-4 rounded-lg text-white border border-gray-600 ${borrowingDuration?.value === duration.value ? 'bg-green-500' : 'bg-transparent'} border-opacity-70`}
-                >
-                  {duration.label}
-                </button>
-              ))}
-            </div>
+          <div className="w-full p-4">
+            <Button 
+              onClick={handleBorrow}
+              className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
+            >
+              Borrow
+            </Button>
           </div>
-          {interestRate !== null && (
-            <div className="mb-4 text-white">
-              <p>Estimated Interest Rate: {interestRate.toFixed(2)}%</p>
-            </div>
-          )}
-          <Button 
-          onClick={handleBorrow}
-          className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
-          >
-            Confirm Borrow
-          </Button>
         </div>
       </div>
     </div>
