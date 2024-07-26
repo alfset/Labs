@@ -35,5 +35,25 @@ export const switchChain = async (chainId: string): Promise<void> => {
   }
 };
 
+export const signMessage = async (message: string): Promise<string> => {
+  if (typeof window.ethereum !== 'undefined') {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const account = accounts[0];
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = provider.getSigner(account);
+      
+      const signature = await signer.signMessage(message);
+      return signature;
+    } catch (error) {
+      console.error('Error signing message:', error);
+      throw new Error('Error signing message');
+    }
+  } else {
+    console.error('MetaMask is not installed');
+    throw new Error('MetaMask is not installed');
+  }
+};
+
 
 

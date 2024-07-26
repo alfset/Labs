@@ -58,6 +58,7 @@ const Navbar = ({ className }: { className?: string }) => {
                         <HoveredLink href="/staking">Staking Pools</HoveredLink>
                         <HoveredLink href="/pool">Pool</HoveredLink>
                         <HoveredLink href="/tokenstake">Token Staking</HoveredLink>
+                        <HoveredLink href="/faucet">faucet</HoveredLink>
                     </div>
                 </MenuItem>
             </Menu>
