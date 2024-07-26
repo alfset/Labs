@@ -2,24 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/moving-border';
-import ChainSwitchButton from './SwitchChain'; // Update path as necessary
-import { connectMetaMask } from '../utils/wallet'; // Update path as necessary
+import ChainSwitchButton from './SwitchChain'; // Correct import path
+import { connectMetaMask, disconnectMetaMask } from '../utils/wallet'; // Correct import path
+import { connectNamiWallet } from '../utils/cardano'; // Correct import path
 
-interface ConnectButtonProps {
-  account: string | null;
-  setAccount: React.Dispatch<React.SetStateAction<string | null>>;
-}
-
-const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) => {
-  const [connected, setConnected] = React.useState<boolean>(!!account);
+const ConnectButton: React.FC = () => {
+  const [account, setAccount] = useState<string | null>(null);
+  const [selectedChain, setSelectedChain] = useState<string>('');
+  const [connected, setConnected] = useState<boolean>(!!account);
   const [visible, setVisible] = useState(true);
   const [lastScrollTop, setLastScrollTop] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setConnected(!!account);
   }, [account]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
 
@@ -41,15 +39,30 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) =>
   const handleConnectMetaMask = async () => {
     try {
       const address = await connectMetaMask();
-      if (address) {
-        console.log(address);
+      if (typeof address === 'string') {
+        console.log(`MetaMask connected: ${address}`);
         setAccount(address);
         setConnected(true);
       } else {
-        console.error("Failed to connect MetaMask.");
+        console.error("Failed to connect MetaMask. Address is not a string.");
       }
     } catch (err) {
       console.error("Failed to connect MetaMask:", err);
+    }
+  };
+
+  const handleConnectNami = async () => {
+    try {
+      const address = await connectNamiWallet();
+      if (typeof address === 'string') {
+        console.log(`Nami Wallet connected: ${address}`);
+        setAccount(address);
+        setConnected(true);
+      } else {
+        console.error("Failed to connect Nami Wallet. Address is not a string:", address);
+      }
+    } catch (err) {
+      console.error("Failed to connect Nami Wallet:", err);
     }
   };
 
@@ -58,6 +71,19 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) =>
     setConnected(false);
   };
 
+  const handleConnect = async () => {
+    console.log(`Attempting to connect with selected chain: ${selectedChain}`); // Debugging
+    if (selectedChain === 'cardano') {
+      await handleConnectNami();
+    } else {
+      await handleConnectMetaMask();
+    }
+  };
+
+  const accountDisplay = account && typeof account === 'string'
+    ? `${account.substring(0, 6)}...${account.substring(account.length - 4)}`
+    : 'Connect Wallet';
+
   return (
     <div
       className={`fixed top-10 right-4 z-50 transition-transform ${
@@ -65,9 +91,9 @@ const ConnectButton: React.FC<ConnectButtonProps> = ({ account, setAccount }) =>
       }`}
     >
       <div className="flex items-center space-x-4">
-        <ChainSwitchButton />
-        <Button onClick={connected ? handleDisconnectWallet : handleConnectMetaMask}>
-          {connected ? `${account?.substring(0, 6)}...${account?.substring(account.length - 4)}` : 'Connect Wallet'}
+        <ChainSwitchButton setSelectedChain={setSelectedChain} />
+        <Button onClick={connected ? handleDisconnectWallet : handleConnect}>
+          {connected ? accountDisplay : 'Connect Wallet'}
         </Button>
       </div>
     </div>

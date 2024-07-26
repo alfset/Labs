@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cardano-foundation/cardano-connect-with-wallet-core": "^0.2.5",
     "@chain-registry/types": "^0.45.30",
     "@cosmjs/encoding": "^0.32.4",
     "@cosmjs/launchpad": "^0.27.1",

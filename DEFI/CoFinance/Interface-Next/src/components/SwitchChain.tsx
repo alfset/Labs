@@ -1,35 +1,48 @@
-// components/ChainSwitchButton.tsx
 import React, { useState } from 'react';
-import { Button } from '../components/ui/moving-border';
-import { switchChain } from '../utils/wallet'; 
+import { Button } from '../components/ui/moving-border'; // Ensure this path is correct
+import { switchChainEthereum, switchChainCardano, switchChainSolana } from '../utils/wallet'; // Import your functions
 
-// Define the chain options, including Solana clusters
+// Define the chain options, including Cardano and Solana
 const chains = [
-  { value: '0x1', label: 'Ethereum' }, 
+  { value: '0x1', label: 'Ethereum' },
   { value: '0x50b', label: 'Swisstronik' },
-  { value: '0x38', label: 'BSC' }, 
-  { value: '0x1ba5', label: 'Planq' }, 
+  { value: '0x38', label: 'BSC' },
+  { value: '0x1ba5', label: 'Planq' },
   { value: '0x67266a7', label: 'Orichain' },
   { value: '0x8274f', label: 'Scroll' },
   { value: '0x2105', label: 'Base' },
   { value: '0x103d', label: 'Cross Finance' },
   { value: '0x89', label: 'Polygon' },
-  { value: '-', label: 'Cardano (Soon)' },
-  { value: '-', label: 'Solana (Soon)' },
+  { value: 'cardano', label: 'Cardano' },
+  { value: 'solana', label: 'Solana' },
 ];
 
-const ChainSwitchButton: React.FC = () => {
-  const [selectedChain, setSelectedChain] = useState<string | null>(null);
+interface ChainSwitchButtonProps {
+  setSelectedChain: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const ChainSwitchButton: React.FC<ChainSwitchButtonProps> = ({ setSelectedChain }) => {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [selectedChain, setSelectedChainLocal] = useState<string>('');
 
   const handleSwitchChain = async (chainId: string) => {
+    console.log(`Switching to chain ID: ${chainId}`); // Debugging
     try {
-      if (chainId.startsWith('solana')) {
-        console.log(`Selected ${chainId}, switching Solana cluster.`);
+      if (chainId === 'solana') {
+        console.log(`Selected Solana, switching Solana cluster.`);
+        await switchChainSolana(); // Handle Solana chain switch
+        setSelectedChainLocal(chainId);
         setSelectedChain(chainId);
-        setMenuOpen(false); 
+        setMenuOpen(false);
+      } else if (chainId === 'cardano') {
+        console.log(`Selected Cardano.`);
+        await switchChainCardano(); // Handle Cardano chain switch
+        setSelectedChainLocal(chainId);
+        setSelectedChain(chainId);
+        setMenuOpen(false);
       } else {
-        await switchChain(chainId);
+        await switchChainEthereum(chainId); // Handle Ethereum chain switch
+        setSelectedChainLocal(chainId);
         setSelectedChain(chainId);
         setMenuOpen(false);
         console.log(`Switched to chain ID: ${chainId}`);
@@ -43,7 +56,7 @@ const ChainSwitchButton: React.FC = () => {
     <div className="relative inline-block text-left">
       <Button
         className="mr-2"
-        onClick={() => setMenuOpen(prev => !prev)} // Toggle menu visibility
+        onClick={() => setMenuOpen(prev => !prev)}
       >
         {selectedChain ? chains.find(chain => chain.value === selectedChain)?.label : 'Select Chain'}
       </Button>
