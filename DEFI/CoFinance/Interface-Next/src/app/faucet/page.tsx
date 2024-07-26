@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/moving-border';
 import { ethers } from 'ethers';
-import TokenERC20ABI from '../../data/abis/ERC20.json'; // Import ABI
-import { useAccount } from '../rootLayout'; // Import the useAccount hook
-import contractAddressesJson from '../../data/tokens.json'; // Import JSON data
-import { ContractAddresses } from '../../types/ContractAddress'; // Import TypeScript type
+import TokenERC20ABI from '../../data/abis/ERC20.json';
+import { useAccount } from '../rootlayout'; 
+import contractAddressesJson from '../../data/tokens.json';
+import { ContractAddresses } from '../../types/ContractAddress'; 
+const { encryptDataField } = require("@swisstronik/utils");
 
 const Faucet: React.FC = () => {
-  const { account } = useAccount(); // Use account from context
+  const { account } = useAccount(); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -48,19 +49,23 @@ const Faucet: React.FC = () => {
     const message = `Please sign this message to request faucet. Account: ${account}`;
 
     try {
-      // Prompt MetaMask to sign the message
       await promptMetaMaskSign(message);
-
-      // Initialize provider
       const provider = new ethers.BrowserProvider(window.ethereum);
       const chainId = await provider.getNetwork().then(network => network.chainId);
+      const swisstronikChainId = 1291; // Example Swisstronik chain ID, update if necessary
 
-      // Determine the correct contract addresses based on chain ID
-      if (!contractAddresses) {
-        throw new Error('Contract addresses not loaded');
+      let addresses: string[] | undefined;
+
+      if (chainId === swisstronikChainId) {
+        // Use specific addresses for Swisstronik
+        addresses = [
+          '0xbe821Cd53a7e6E957F22cC866f6D2Bd42Ab1f18c',
+          '0xff5f8727fC6943623fE5395e0781aC264bc16a41'
+        ];
+      } else if (contractAddresses) {
+        const chainIdString = chainId.toString();
+        addresses = contractAddresses[chainIdString];
       }
-
-      const addresses = contractAddresses[chainId];
 
       if (!addresses || addresses.length === 0) {
         throw new Error('No contract addresses for the current chain ID');
@@ -72,12 +77,26 @@ const Faucet: React.FC = () => {
       // Track transaction hashes
       const txHashes: string[] = [];
 
-      // Loop through each contract address and call the mint function
       for (const address of addresses) {
         const contract = new ethers.Contract(address, TokenERC20ABI, signer);
-        const mint100TokensTx = await contract.mint100tokens();
-        await mint100TokensTx.wait();
-        txHashes.push(mint100TokensTx.hash);
+        const functionName = "mint100tokens";
+
+        // Encode function data
+        const data = contract.interface.encodeFunctionData(functionName);
+        const rpcLink = "https://json-rpc.testnet.swisstronik.com";
+        const [encryptedData] = await encryptDataField(rpcLink, data);
+        const tx: ethers.providers.TransactionRequest = {
+          to: address,
+          data: encryptedData,
+          value: "0", // No value
+        };
+        console.log(tx);
+        const gasEstimate = await provider.estimateGas(tx);
+        console.log(gasEstimate);
+        tx.gasLimit = gasEstimate;
+        const txResponse = await signer.sendTransaction(tx);
+        await txResponse.wait();
+        txHashes.push(txResponse.hash);
       }
 
       setSuccess(`Transactions successful! Tx Hashes: ${txHashes.join(', ')}`);
@@ -110,6 +129,6 @@ const Faucet: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Faucet;
