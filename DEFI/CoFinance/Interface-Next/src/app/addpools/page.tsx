@@ -1,24 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select, { components } from 'react-select';
 import tokens from '../../data/token.json';
 import { Button } from '../../components/ui/moving-border';
 import { ethers } from 'ethers';
 
-// Replace with your actual contract ABI
+// Replace with your smart contract ABI and address
 const COFINANCE_FACTORY_ABI = [
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "name", "type": "string" },
-      { "name": "symbol", "type": "string" }
-    ],
-    "name": "createLiquidityToken",
-    "outputs": [{ "name": "", "type": "address" }],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
   {
     "constant": false,
     "inputs": [
@@ -37,11 +25,7 @@ const COFINANCE_FACTORY_ABI = [
     "type": "function"
   }
 ];
-
-// Use the provided contract addresses
-const COFINANCE_FACTORY_ADDRESS = '0x1EcA16F659e63C0D0a306Bc3ac3e63978AC94DF3';
-const STAKING_CONTRACT_ADDRESS = '0xDA22e41cf6e8d23bb3B5F23d303c2F95F92DD878';
-console.log
+const COFINANCE_FACTORY_ADDRESS = ''; // Replace with your actual contract address
 
 const customStyles = {
   control: (base) => ({
@@ -90,16 +74,26 @@ const CustomSingleValue = (props) => (
 function AddPool() {
   const [tokenA, setTokenA] = useState<{ value: string; label: string; image: string } | null>(null);
   const [tokenB, setTokenB] = useState<{ value: string; label: string; image: string } | null>(null);
+  const [amountA, setAmountA] = useState('');
+  const [amountB, setAmountB] = useState('');
   const [poolName, setPoolName] = useState('');
   const [priceFeed, setPriceFeed] = useState('');
   const [rewardToken, setRewardToken] = useState('');
+  const [liquidityToken, setLiquidityToken] = useState('');
   const [isIncentivized, setIsIncentivized] = useState(false);
 
   const tokenOptions = tokens.tokens.map((token) => ({
-    value: token.address, 
+    value: token.address, // Assuming you have addresses in token.json
     label: token.name,
     image: token.image,
   }));
+
+  useEffect(() => {
+    if (tokenA && tokenB) {
+      // Set the liquidity token name based on tokenA and tokenB names
+      setLiquidityToken(`${tokenA.label}-${tokenB.label}`);
+    }
+  }, [tokenA, tokenB]);
 
   const handleAddPool = async () => {
     if (!tokenA || !tokenB || !rewardToken || !priceFeed) {
@@ -109,42 +103,27 @@ function AddPool() {
 
     try {
       // Initialize ethers provider and contract
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const coFinanceFactory = new ethers.Contract(COFINANCE_FACTORY_ADDRESS, COFINANCE_FACTORY_ABI, signer);
 
-      // Step 1: Create Liquidity Token
-      const liquidityTokenTx = await coFinanceFactory.createLiquidityToken(poolName, `${tokenA.label}-${tokenB.label}`);
-      const liquidityTokenAddress = await liquidityTokenTx.wait();
-      const liquidityToken = liquidityTokenAddress.events[0].args[0]; // Address of the created liquidity token
-
-      // Log liquidity token creation details
-      console.log('Liquidity Token Address:', liquidityToken);
-      console.log('Pool Name:', poolName);
-      console.log('Token A:', tokenA);
-      console.log('Token B:', tokenB);
-      console.log('Reward Token:', rewardToken);
-      console.log('Price Feed:', priceFeed);
-      console.log('Is Incentivized:', isIncentivized);
-
-      // Step 2: Create CoFinance Contract
-      const coFinanceTx = await coFinanceFactory.createCoFinanceContract(
+      // Call the createCoFinanceContract function
+      const tx = await coFinanceFactory.createCoFinanceContract(
         tokenA.value,        // Token A address
         tokenB.value,        // Token B address
         rewardToken,         // Reward Token address from input
         priceFeed,           // Price Feed Address from input
-        liquidityToken,     // Liquidity Token address from Step 1
-        STAKING_CONTRACT_ADDRESS, // Use the provided staking contract address
+        liquidityToken,     // Auto-populated liquidity token name
+        'STAKING_CONTRACT_ADDRESS', // Replace with actual staking contract address
         isIncentivized       // Incentivized pool flag
       );
 
       // Wait for the transaction to be mined
-      const coFinanceContractAddress = await coFinanceTx();
-      const coFinanceContract = coFinanceContractAddress.events[0].args[0]; // Address of the created CoFinance contract
+      await tx.wait();
 
       // Inform the user about the successful creation
       alert('Pool added successfully');
-      console.log('Pool added successfully. CoFinance contract address:', coFinanceContract);
+      console.log('Pool added successfully. Contract address:', tx.address);
 
     } catch (error) {
       console.error('Error adding pool:', error);
@@ -182,6 +161,15 @@ function AddPool() {
             />
           </div>
           <div className="mb-4">
+            <input
+              type="number"
+              value={amountA}
+              onChange={(e) => setAmountA(e.target.value)}
+              placeholder="Amount of Token A"
+              className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
+            />
+          </div>
+          <div className="mb-4">
             <Select
               options={tokenOptions}
               value={tokenB}
@@ -189,6 +177,24 @@ function AddPool() {
               styles={customStyles}
               components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
               placeholder="Select Token B"
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="number"
+              value={amountB}
+              onChange={(e) => setAmountB(e.target.value)}
+              placeholder="Amount of Token B"
+              className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="text"
+              value={priceFeed}
+              onChange={(e) => setPriceFeed(e.target.value)}
+              placeholder="Price Feed Address"
+              className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
             />
           </div>
           <div className="mb-4">
@@ -203,24 +209,29 @@ function AddPool() {
           <div className="mb-4">
             <input
               type="text"
-              value={priceFeed}
-              onChange={(e) => setPriceFeed(e.target.value)}
-              placeholder="Price Feed Address"
+              value={liquidityToken}
+              readOnly
+              placeholder="Liquidity Token Name"
               className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
             />
           </div>
-          <div className="mb-4">
-            <label className="flex items-center text-white">
-              <input
-                type="checkbox"
-                checked={isIncentivized}
-                onChange={(e) => setIsIncentivized(e.target.checked)}
-                className="mr-2"
-              />
-              Incentivized Pool
-            </label>
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              checked={isIncentivized}
+              onChange={(e) => setIsIncentivized(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-white">Incentivized Pool</span>
           </div>
-          <Button onClick={handleAddPool} text="Add Pool" />
+          <div className="text-center">
+            <Button
+              onClick={handleAddPool}
+              className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 transition duration-300 text-white py-2 px-4 rounded-lg"
+            >
+              Add Pool
+            </Button>
+          </div>
         </div>
       </div>
     </div>
