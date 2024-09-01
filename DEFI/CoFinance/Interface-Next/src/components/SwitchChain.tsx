@@ -7,7 +7,7 @@ import { switchChain } from '../utils/wallet';
 const chains = [
   { value: '0x1', label: 'Ethereum' }, 
   { value: '0x50b', label: 'Swisstronik' },
-  { value: '0x38', label: 'BSC' }, 
+  { value: '0x61', label: 'BSC' }, 
   { value: '0x1ba5', label: 'Planq' }, 
   { value: '0x67266a7', label: 'Orichain' },
   { value: '0x8274f', label: 'Scroll' },

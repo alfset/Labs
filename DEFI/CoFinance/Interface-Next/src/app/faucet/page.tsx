@@ -17,7 +17,6 @@ const Faucet: React.FC = () => {
   const [contractAddresses, setContractAddresses] = useState<ContractAddresses | null>(null);
 
   useEffect(() => {
-    // Directly use the imported JSON data
     setContractAddresses(contractAddressesJson);
   }, []);
 

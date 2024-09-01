@@ -5,6 +5,22 @@ import tokens from '../../data/token.json';
 import { Button } from '../../components/ui/moving-border';
 import { ethers } from 'ethers';
 
+// MetaMask Sign Function
+const promptMetaMaskSign = async (message: string): Promise<string> => {
+  if (!window.ethereum) {
+    throw new Error('MetaMask is not installed');
+  }
+
+  // Initialize provider and signer
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+
+  // Request MetaMask to sign the message
+  const signature = await signer.signMessage(message);
+
+  return signature;
+};
+
 // Replace with your smart contract ABI and address
 const COFINANCE_FACTORY_ABI = [
   {
@@ -14,18 +30,19 @@ const COFINANCE_FACTORY_ABI = [
       { "name": "tokenB", "type": "address" },
       { "name": "rewardToken", "type": "address" },
       { "name": "priceFeed", "type": "address" },
-      { "name": "liquidityToken", "type": "address" },
+      { "name": "liquidityTokenName", "type": "string" },
+      { "name": "liquidityTokenSymbol", "type": "string" },
       { "name": "stakingContract", "type": "address" },
       { "name": "isPoolIncentivized", "type": "bool" }
     ],
-    "name": "createCoFinanceContract",
+    "name": "createPool",
     "outputs": [{ "name": "", "type": "address" }],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   }
 ];
-const COFINANCE_FACTORY_ADDRESS = ''; // Replace with your actual contract address
+const COFINANCE_FACTORY_ADDRESS = '0x4a6cbe49e4c33f8b9606ed641cac622b7f33a188'; // Replace with your actual contract address
 
 const customStyles = {
   control: (base) => ({
@@ -79,21 +96,13 @@ function AddPool() {
   const [poolName, setPoolName] = useState('');
   const [priceFeed, setPriceFeed] = useState('');
   const [rewardToken, setRewardToken] = useState('');
-  const [liquidityToken, setLiquidityToken] = useState('');
   const [isIncentivized, setIsIncentivized] = useState(false);
 
   const tokenOptions = tokens.tokens.map((token) => ({
-    value: token.address, // Assuming you have addresses in token.json
+    value: token.description, // Assuming you have addresses in token.json
     label: token.name,
     image: token.image,
   }));
-
-  useEffect(() => {
-    if (tokenA && tokenB) {
-      // Set the liquidity token name based on tokenA and tokenB names
-      setLiquidityToken(`${tokenA.label}-${tokenB.label}`);
-    }
-  }, [tokenA, tokenB]);
 
   const handleAddPool = async () => {
     if (!tokenA || !tokenB || !rewardToken || !priceFeed) {
@@ -103,22 +112,25 @@ function AddPool() {
 
     try {
       // Initialize ethers provider and contract
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
       const coFinanceFactory = new ethers.Contract(COFINANCE_FACTORY_ADDRESS, COFINANCE_FACTORY_ABI, signer);
 
-      // Call the createCoFinanceContract function
-      const tx = await coFinanceFactory.createCoFinanceContract(
+      // Prepare the message to sign
+      const message = `Creating pool with: ${tokenA.label} and ${tokenB.label}`;
+      const signature = await promptMetaMaskSign(message);
+
+      console.log('Signature:', signature);
+      const tx = await coFinanceFactory.createPool(
         tokenA.value,        // Token A address
-        tokenB.value,        // Token B address
+        tokenB.value,        // Token B addresss
         rewardToken,         // Reward Token address from input
         priceFeed,           // Price Feed Address from input
-        liquidityToken,     // Auto-populated liquidity token name
-        'STAKING_CONTRACT_ADDRESS', // Replace with actual staking contract address
-        isIncentivized       // Incentivized pool flag
+        "Cofinance",            // Liquidity Token Name
+        'TEST', // Replace with desired symbol or add input field
+        '0xcc86dC84502930228995158748e36AcFC71B9Af8', // Replace with actual staking contract address
+        "false"       // Incentivized pool flag
       );
-
-      // Wait for the transaction to be mined
       await tx.wait();
 
       // Inform the user about the successful creation
@@ -161,15 +173,6 @@ function AddPool() {
             />
           </div>
           <div className="mb-4">
-            <input
-              type="number"
-              value={amountA}
-              onChange={(e) => setAmountA(e.target.value)}
-              placeholder="Amount of Token A"
-              className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
-            />
-          </div>
-          <div className="mb-4">
             <Select
               options={tokenOptions}
               value={tokenB}
@@ -177,15 +180,6 @@ function AddPool() {
               styles={customStyles}
               components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
               placeholder="Select Token B"
-            />
-          </div>
-          <div className="mb-4">
-            <input
-              type="number"
-              value={amountB}
-              onChange={(e) => setAmountB(e.target.value)}
-              placeholder="Amount of Token B"
-              className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
             />
           </div>
           <div className="mb-4">
@@ -209,7 +203,7 @@ function AddPool() {
           <div className="mb-4">
             <input
               type="text"
-              value={liquidityToken}
+              value={"CofinanceLiquidity"}
               readOnly
               placeholder="Liquidity Token Name"
               className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import PoolCard from '../../components/PoolCard'; // Adjust the import path as necessary
-
+import PoolCard from '../../components/PoolCard'; 
+import { Button } from '../../components/ui/moving-border';
 // Dummy pool data
 const pools = [
   {
@@ -44,17 +44,28 @@ const userOwnedPools = [
 ];
 
 function Pools() {
+  const handleAddPoolClick = () => {
+    window.location.href = '/add-pools'; 
+  };
   return (
     <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-36">
       {userOwnedPools.length > 0 && (
         <div className="flex flex-col items-center mb-12">
           <h2 className="text-lg md:text-4xl font-sans font-bold mb-6 text-white"> Pools</h2>
+          
           <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-6xl backdrop-blur-sm">
+          <button
+              onClick={handleAddPoolClick}
+              className="absolute bottom-4 right-4 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+              Add New Pool
+            </button>
             <ul className="space-y-4">
               {userOwnedPools.map((pool) => (
                 <PoolCard key={pool.id} pool={pool} />
               ))}
             </ul>
+            
           </div>
         </div>
       )}

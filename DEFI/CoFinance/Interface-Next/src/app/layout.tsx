@@ -1,5 +1,5 @@
-import ServerLayout from './serverlayout';
-import ClientWrapper from './rootlayout';
+import ServerLayout from './ServerLayout';
+import ClientWrapper from './RootLayout';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
