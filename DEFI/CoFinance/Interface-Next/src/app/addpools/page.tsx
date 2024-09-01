@@ -99,7 +99,7 @@ function AddPool() {
   const [isIncentivized, setIsIncentivized] = useState(false);
 
   const tokenOptions = tokens.tokens.map((token) => ({
-    value: token.description, // Assuming you have addresses in token.json
+    address: token.address, 
     label: token.name,
     image: token.image,
   }));
@@ -122,8 +122,8 @@ function AddPool() {
 
       console.log('Signature:', signature);
       const tx = await coFinanceFactory.createPool(
-        tokenA.value,        // Token A address
-        tokenB.value,        // Token B addresss
+        tokenA.address,        // Token A address
+        tokenB.address,        // Token B addresss
         rewardToken,         // Reward Token address from input
         priceFeed,           // Price Feed Address from input
         "Cofinance",            // Liquidity Token Name
