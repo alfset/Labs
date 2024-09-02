@@ -1,9 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select, { components } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import tokens from '../../data/token.json';
-import cofinance from '../../data/abis/Factory.json';
 import { Button } from '../../components/ui/moving-border';
 import { ethers } from 'ethers';
 
@@ -12,13 +11,37 @@ const promptMetaMaskSign = async (message: string): Promise<string> => {
   if (!window.ethereum) {
     throw new Error('MetaMask is not installed');
   }
+
+  // Initialize provider and signer
   const provider = new ethers.BrowserProvider(window.ethereum);
-  const signer = provider.getSigner();
+  const signer = await provider.getSigner();
+
+  // Request MetaMask to sign the message
   const signature = await signer.signMessage(message);
+
   return signature;
 };
-const COFINANCE_FACTORY_ABI = cofinance.abi;
-const COFINANCE_FACTORY_ADDRESS = cofinance.address;
+const COFINANCE_FACTORY_ABI = [
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "tokenA", "type": "address" },
+      { "name": "tokenB", "type": "address" },
+      { "name": "rewardToken", "type": "address" },
+      { "name": "priceFeed", "type": "address" },
+      { "name": "liquidityTokenName", "type": "string" },
+      { "name": "liquidityTokenSymbol", "type": "string" },
+      { "name": "isPoolIncentivized", "type": "bool" }
+    ],
+    "name": "createPool",
+    "outputs": [{ "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+const COFINANCE_FACTORY_ADDRESS = '0xf2dAfc6dC12B8D6770C413bA38196B4f67EB7578'; // Replace with your actual contract address
+
 const customStyles = {
   control: (base) => ({
     ...base,
@@ -45,7 +68,6 @@ const customStyles = {
   }),
 };
 
-// Custom option and single value components
 const CustomOption = (props) => (
   <components.Option {...props}>
     <div className="flex items-center">
@@ -89,9 +111,12 @@ const getTokenInfo = async (provider, address) => {
   }
 };
 
+
 function AddPool() {
   const [tokenA, setTokenA] = useState<{ value: string; label: string; image: string } | null>(null);
   const [tokenB, setTokenB] = useState<{ value: string; label: string; image: string } | null>(null);
+  const [amountA, setAmountA] = useState('');
+  const [amountB, setAmountB] = useState('');
   const [poolName, setPoolName] = useState('');
   const [priceFeed, setPriceFeed] = useState('');
   const [rewardToken, setRewardToken] = useState('');
@@ -126,29 +151,23 @@ function AddPool() {
     try {
       // Initialize ethers provider and contract
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = provider.getSigner();
+      const signer = await provider.getSigner();
       const coFinanceFactory = new ethers.Contract(COFINANCE_FACTORY_ADDRESS, COFINANCE_FACTORY_ABI, signer);
-
-      // Prepare the message to sign
-      const message = `Creating pool with: ${tokenA.value} and ${tokenB.value}`;
+      const message = `Creating pool with: ${tokenA.label} and ${tokenB.label}`;
       const signature = await promptMetaMaskSign(message);
       console.log('Signature:', signature);
-
-      // Create the pool
       const tx = await coFinanceFactory.createPool(
-        tokenA.value,        // Token A address
-        tokenB.value,        // Token B address
-        rewardToken,         // Reward Token address from input
-        priceFeed,           // Price Feed Address from input
-        poolName,            // Liquidity Token Name
-        'TEST',              // Liquidity Token Symbol (e.g., 'TEST')
-        isIncentivized       // Incentivized pool flag
-      );
-
+        tokenA.value,       
+        tokenB.value,        
+        rewardToken,         
+        priceFeed,          
+        poolName,           
+        "CoFi-LP",
+        isIncentivized,
+        { value: ethers.parseUnits('10', 'wei') });
       await tx.wait();
-
       alert('Pool added successfully');
-      console.log('Pool added successfully. Transaction address:', tx.hash);
+      console.log('Pool added successfully. Contract address:', tx.address);
 
     } catch (error) {
       console.error('Error adding pool:', error);
