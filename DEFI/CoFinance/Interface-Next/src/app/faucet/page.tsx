@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/moving-border';
 import { ethers } from 'ethers';
 import TokenERC20ABI from '../../data/abis/ERC20.json';
-import { useAccount } from '../rootlayout'; 
+import { useAccount } from '../RootLayout'; 
 import contractAddressesJson from '../../data/tokens.json';
 import { ContractAddresses } from '../../types/ContractAddress'; 
 const { encryptDataField } = require("@swisstronik/utils");
