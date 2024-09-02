@@ -1,7 +1,9 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Select, { components } from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import tokens from '../../data/token.json';
+import cofinance from '../../data/abis/Factory.json';
 import { Button } from '../../components/ui/moving-border';
 import { ethers } from 'ethers';
 
@@ -10,40 +12,13 @@ const promptMetaMaskSign = async (message: string): Promise<string> => {
   if (!window.ethereum) {
     throw new Error('MetaMask is not installed');
   }
-
-  // Initialize provider and signer
   const provider = new ethers.BrowserProvider(window.ethereum);
-  const signer = await provider.getSigner();
-
-  // Request MetaMask to sign the message
+  const signer = provider.getSigner();
   const signature = await signer.signMessage(message);
-
   return signature;
 };
-
-// Replace with your smart contract ABI and address
-const COFINANCE_FACTORY_ABI = [
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "tokenA", "type": "address" },
-      { "name": "tokenB", "type": "address" },
-      { "name": "rewardToken", "type": "address" },
-      { "name": "priceFeed", "type": "address" },
-      { "name": "liquidityTokenName", "type": "string" },
-      { "name": "liquidityTokenSymbol", "type": "string" },
-      { "name": "stakingContract", "type": "address" },
-      { "name": "isPoolIncentivized", "type": "bool" }
-    ],
-    "name": "createPool",
-    "outputs": [{ "name": "", "type": "address" }],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-const COFINANCE_FACTORY_ADDRESS = '0x4a6cbe49e4c33f8b9606ed641cac622b7f33a188'; // Replace with your actual contract address
-
+const COFINANCE_FACTORY_ABI = cofinance.abi;
+const COFINANCE_FACTORY_ADDRESS = cofinance.address;
 const customStyles = {
   control: (base) => ({
     ...base,
@@ -70,6 +45,7 @@ const customStyles = {
   }),
 };
 
+// Custom option and single value components
 const CustomOption = (props) => (
   <components.Option {...props}>
     <div className="flex items-center">
@@ -88,21 +64,58 @@ const CustomSingleValue = (props) => (
   </components.SingleValue>
 );
 
+const getTokenInfo = async (provider, address) => {
+  try {
+    const tokenContract = new ethers.Contract(address, [
+      "function name() view returns (string)",
+      "function symbol() view returns (string)",
+      "function decimals() view returns (uint8)"
+    ], provider);
+
+    const [name, symbol, decimals] = await Promise.all([
+      tokenContract.name(),
+      tokenContract.symbol(),
+      tokenContract.decimals()
+    ]);
+
+    return {
+      value: address,
+      label: `${name} (${symbol})`,
+      image: `https://cryptologos.cc/logos/${symbol.toLowerCase()}-${decimals}-logo.png`
+    };
+  } catch (error) {
+    console.error('Error fetching token info:', error);
+    return null;
+  }
+};
+
 function AddPool() {
   const [tokenA, setTokenA] = useState<{ value: string; label: string; image: string } | null>(null);
   const [tokenB, setTokenB] = useState<{ value: string; label: string; image: string } | null>(null);
-  const [amountA, setAmountA] = useState('');
-  const [amountB, setAmountB] = useState('');
   const [poolName, setPoolName] = useState('');
   const [priceFeed, setPriceFeed] = useState('');
   const [rewardToken, setRewardToken] = useState('');
   const [isIncentivized, setIsIncentivized] = useState(false);
-
-  const tokenOptions = tokens.tokens.map((token) => ({
-    address: token.address, 
+  const [tokenOptions, setTokenOptions] = useState(tokens.tokens.map(token => ({
+    value: token.address,
     label: token.name,
     image: token.image,
-  }));
+  })));
+
+  const handleAddCustomOption = async (inputValue, setSelectedOption) => {
+    if (ethers.isAddress(inputValue)) {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const tokenInfo = await getTokenInfo(provider, inputValue);
+      if (tokenInfo) {
+        setTokenOptions((prevOptions) => [...prevOptions, tokenInfo]);
+        setSelectedOption(tokenInfo);
+      } else {
+        alert('Failed to fetch token info');
+      }
+    } else {
+      alert('Invalid address');
+    }
+  };
 
   const handleAddPool = async () => {
     if (!tokenA || !tokenB || !rewardToken || !priceFeed) {
@@ -113,33 +126,32 @@ function AddPool() {
     try {
       // Initialize ethers provider and contract
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      const signer = provider.getSigner();
       const coFinanceFactory = new ethers.Contract(COFINANCE_FACTORY_ADDRESS, COFINANCE_FACTORY_ABI, signer);
 
       // Prepare the message to sign
-      const message = `Creating pool with: ${tokenA.label} and ${tokenB.label}`;
+      const message = `Creating pool with: ${tokenA.value} and ${tokenB.value}`;
       const signature = await promptMetaMaskSign(message);
-
       console.log('Signature:', signature);
+
+      // Create the pool
       const tx = await coFinanceFactory.createPool(
-        tokenA.address,        // Token A address
-        tokenB.address,        // Token B addresss
+        tokenA.value,        // Token A address
+        tokenB.value,        // Token B address
         rewardToken,         // Reward Token address from input
         priceFeed,           // Price Feed Address from input
-        "Cofinance",            // Liquidity Token Name
-        'TEST', // Replace with desired symbol or add input field
-        '0xcc86dC84502930228995158748e36AcFC71B9Af8', // Replace with actual staking contract address
-        "false"       // Incentivized pool flag
+        poolName,            // Liquidity Token Name
+        'TEST',              // Liquidity Token Symbol (e.g., 'TEST')
+        isIncentivized       // Incentivized pool flag
       );
+
       await tx.wait();
 
-      // Inform the user about the successful creation
       alert('Pool added successfully');
-      console.log('Pool added successfully. Contract address:', tx.address);
+      console.log('Pool added successfully. Transaction address:', tx.hash);
 
     } catch (error) {
       console.error('Error adding pool:', error);
-      alert('Error adding pool. Please check the console for details.');
     }
   };
 
@@ -147,9 +159,7 @@ function AddPool() {
     <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-black py-12 pt-36">
       <h1 className="text-lg md:text-7xl text-center font-sans font-bold mb-8 text-white">Add Liquidity to Pool</h1>
 
-      <div className="text-center text-white mb-12">
-        {/* Display wallet address or other info if needed */}
-      </div>
+      <div className="text-center text-white mb-12"></div>
 
       <div className="flex justify-center mb-12">
         <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black p-6 rounded-lg shadow-lg w-full max-w-md backdrop-blur-sm">
@@ -162,24 +172,30 @@ function AddPool() {
               className="w-full p-2 bg-transparent border border-gray-600 rounded text-white"
             />
           </div>
-          <div className="mb-4">
-            <Select
+          <div className="mb-4 flex items-center">
+            <CreatableSelect
+              isClearable
               options={tokenOptions}
               value={tokenA}
               onChange={setTokenA}
+              onCreateOption={(inputValue) => handleAddCustomOption(inputValue, setTokenA)}
               styles={customStyles}
               components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
-              placeholder="Select Token A"
+              placeholder="Select or Enter Token"
+              className="w-full" 
             />
           </div>
-          <div className="mb-4">
-            <Select
+          <div className="mb-4 flex items-center">
+            <CreatableSelect
+              isClearable
               options={tokenOptions}
               value={tokenB}
               onChange={setTokenB}
+              onCreateOption={(inputValue) => handleAddCustomOption(inputValue, setTokenB)}
               styles={customStyles}
               components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
-              placeholder="Select Token B"
+              placeholder="Select or Enter Token"
+              className="w-full" 
             />
           </div>
           <div className="mb-4">
