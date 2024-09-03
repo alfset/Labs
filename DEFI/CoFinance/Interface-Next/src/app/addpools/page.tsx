@@ -4,9 +4,10 @@ import Select, { components } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import tokens from '../../data/token.json';
 import { Button } from '../../components/ui/moving-border';
+import { createPool } from '../../utils/Factory'; 
+
 import { ethers } from 'ethers';
 
-// MetaMask Sign Function
 const promptMetaMaskSign = async (message: string): Promise<string> => {
   if (!window.ethereum) {
     throw new Error('MetaMask is not installed');
@@ -21,26 +22,6 @@ const promptMetaMaskSign = async (message: string): Promise<string> => {
 
   return signature;
 };
-const COFINANCE_FACTORY_ABI = [
-  {
-    "constant": false,
-    "inputs": [
-      { "name": "tokenA", "type": "address" },
-      { "name": "tokenB", "type": "address" },
-      { "name": "rewardToken", "type": "address" },
-      { "name": "priceFeed", "type": "address" },
-      { "name": "liquidityTokenName", "type": "string" },
-      { "name": "liquidityTokenSymbol", "type": "string" },
-      { "name": "isPoolIncentivized", "type": "bool" }
-    ],
-    "name": "createPool",
-    "outputs": [{ "name": "", "type": "address" }],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-const COFINANCE_FACTORY_ADDRESS = '0xf2dAfc6dC12B8D6770C413bA38196B4f67EB7578'; // Replace with your actual contract address
 
 const customStyles = {
   control: (base) => ({
@@ -149,29 +130,25 @@ function AddPool() {
     }
 
     try {
-      // Initialize ethers provider and contract
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const coFinanceFactory = new ethers.Contract(COFINANCE_FACTORY_ADDRESS, COFINANCE_FACTORY_ABI, signer);
       const message = `Creating pool with: ${tokenA.label} and ${tokenB.label}`;
       const signature = await promptMetaMaskSign(message);
       console.log('Signature:', signature);
-      const tx = await coFinanceFactory.createPool(
-        tokenA.value,       
-        tokenB.value,        
-        rewardToken,         
-        priceFeed,          
-        poolName,           
-        "CoFi-LP",
-        isIncentivized,
-        { value: ethers.parseUnits('10', 'wei') });
-      await tx.wait();
+      const poolAddress = await createPool(
+        provider,
+        tokenA.value,
+        tokenB.value,
+        rewardToken,
+        priceFeed,
+        poolName,
+        isIncentivized
+      );
       alert('Pool added successfully');
-      console.log('Pool added successfully. Contract address:', tx.address);
-
+      console.log('Pool added successfully. Contract address:', poolAddress);
     } catch (error) {
       console.error('Error adding pool:', error);
     }
+
   };
 
   return (
