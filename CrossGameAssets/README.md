@@ -1,0 +1,1 @@
+Cross Game Assets NFT
